@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "web-scraper-studio"
+version = "0.1.0"
+description = "Production-ready Streamlit website scraping studio with TXT, DOCX, and PDF exports."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{ name = "OpenAI Codex" }]
+dependencies = [
+  "streamlit>=1.44,<2.0",
+  "httpx[http2]>=0.27,<1.0",
+  "beautifulsoup4>=4.12,<5.0",
+  "lxml>=5.2,<6.0",
+  "trafilatura>=1.9,<2.0",
+  "readability-lxml>=0.8.1,<1.0",
+  "python-docx>=1.1,<2.0",
+  "reportlab>=4.2,<5.0",
+  "Pillow>=11.2,<12.0",
+  "pydantic>=2.8,<3.0",
+  "tenacity>=8.3,<9.0",
+  "tldextract>=5.1,<6.0",
+  "python-dateutil>=2.9,<3.0",
+  "playwright>=1.52,<2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2,<9.0",
+  "ruff>=0.5,<1.0",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["app*", "scraper*", "exporters*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

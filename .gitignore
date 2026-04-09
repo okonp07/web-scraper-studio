@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+.venv/
+venv/
+env/
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# OS / Editors
+.DS_Store
+.idea/
+.vscode/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# App runtime output
+logs/
+tmp/
+temp/
+exports/
+artifacts/
+
+# Environment files
+.env
+

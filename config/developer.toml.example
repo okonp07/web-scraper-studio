@@ -1,0 +1,8 @@
+[developer]
+respect_robots = true
+debug = false
+max_sitemap_urls = 250
+duplicate_similarity_threshold = 0.94
+max_images_per_page = 4
+minimum_text_length = 180
+
