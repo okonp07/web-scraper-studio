@@ -16,8 +16,8 @@
   --ws-accent: #0f766e;
   --ws-accent-2: #0ea5e9;
   --ws-soft: #e6f7f4;
-  --ws-danger: #dc2626;
-  --ws-success: #16a34a;
+  --ws-danger: #0891b2;
+  --ws-success: #0f766e;
   --ws-sidebar-bg: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.85),
@@ -47,8 +47,8 @@
   --ws-accent: #4fd1c5;
   --ws-accent-2: #7dd3fc;
   --ws-soft: rgba(79, 209, 197, 0.1);
-  --ws-danger: #f87171;
-  --ws-success: #34d399;
+  --ws-danger: #38bdf8;
+  --ws-success: #4fd1c5;
   --ws-sidebar-bg: linear-gradient(
     180deg,
     rgba(16, 28, 44, 0.95),
