@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import logging
 from collections import deque
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from typing import Callable
 
 from bs4 import BeautifulSoup
 
@@ -24,7 +24,7 @@ from app.utils.url import (
 from scraper.deduper import DuplicateDetector
 from scraper.extractor import ContentExtractor
 from scraper.fetcher import ContentTooLargeError, FetchError, FetchResult, PageFetcher
-from scraper.parser import ParsedPage, parse_page
+from scraper.parser import parse_page
 from scraper.robots import RobotsPolicy
 
 
@@ -52,7 +52,10 @@ class BreadthFirstCrawler:
         self,
         request: ScrapeRequest,
         emit: Callable[[dict[str, object]], None] | None = None,
-    ) -> tuple[list[PageContent], list[ScrapeIssue], list[ScrapeIssue], list[str], dict[str, int]]:
+    ) -> tuple[
+        list[PageContent], list[ScrapeIssue],
+        list[ScrapeIssue], list[str], dict[str, int],
+    ]:
         """Run a crawl and return pages, skipped pages, errors, and live logs."""
 
         start_url = canonicalize_url(
@@ -71,15 +74,21 @@ class BreadthFirstCrawler:
             user_agent=self.settings.user_agent,
             respect_robots=self.settings.developer.respect_robots,
         )
-        extractor = ContentExtractor(minimum_text_length=self.settings.developer.minimum_text_length)
-        deduper = DuplicateDetector(self.settings.developer.duplicate_similarity_threshold)
+        extractor = ContentExtractor(
+            minimum_text_length=self.settings.developer.minimum_text_length,
+        )
+        deduper = DuplicateDetector(
+            self.settings.developer.duplicate_similarity_threshold,
+        )
 
         logs: list[str] = []
         skipped_pages: list[ScrapeIssue] = []
         errors: list[ScrapeIssue] = []
         pages: list[PageContent] = []
 
-        queue: deque[CrawlTarget] = deque([CrawlTarget(url=start_url, depth=0, source="seed")])
+        queue: deque[CrawlTarget] = deque([
+            CrawlTarget(url=start_url, depth=0, source="seed"),
+        ])
         discovered_urls: set[str] = {start_url}
         visited_urls: set[str] = set()
 
@@ -95,7 +104,9 @@ class BreadthFirstCrawler:
         )
 
         if request.mode.value == "full_scrape" and request.include_sitemap:
-            sitemap_links = self._discover_sitemap_links(start_url, request, fetcher, robots, max_bytes)
+            sitemap_links = self._discover_sitemap_links(
+                start_url, request, fetcher, robots, max_bytes,
+            )
             added = 0
             for link in sitemap_links:
                 if len(discovered_urls) >= request.max_pages * 8:
@@ -124,16 +135,26 @@ class BreadthFirstCrawler:
                     if target.url in visited_urls:
                         continue
                     if target.depth > request.max_depth:
-                        skipped_pages.append(ScrapeIssue(url=target.url, reason="Depth limit exceeded"))
+                        skipped_pages.append(
+                            ScrapeIssue(url=target.url, reason="Depth limit exceeded"),
+                        )
                         continue
                     if not in_scope(target.url, start_url, request.scope):
-                        skipped_pages.append(ScrapeIssue(url=target.url, reason="Out of crawl scope"))
+                        skipped_pages.append(
+                            ScrapeIssue(url=target.url, reason="Out of crawl scope"),
+                        )
                         continue
                     if is_skippable_url(target.url):
-                        skipped_pages.append(ScrapeIssue(url=target.url, reason="Skipped likely non-content page"))
+                        skipped_pages.append(ScrapeIssue(
+                            url=target.url,
+                            reason="Skipped likely non-content page",
+                        ))
                         continue
                     if not robots.can_fetch(target.url):
-                        skipped_pages.append(ScrapeIssue(url=target.url, reason="Blocked by robots.txt"))
+                        skipped_pages.append(ScrapeIssue(
+                            url=target.url,
+                            reason="Blocked by robots.txt",
+                        ))
                         self._emit(
                             emit,
                             logs,
@@ -188,7 +209,10 @@ class BreadthFirstCrawler:
 
                     page_result.page.order = len(pages) + 1
                     pages.append(page_result.page)
-                    deduper.remember(page_result.page.canonical_url, page_result.page.text_content)
+                    deduper.remember(
+                        page_result.page.canonical_url,
+                        page_result.page.text_content,
+                    )
                     visited_urls.add(page_result.page.canonical_url)
 
                     self._emit(
@@ -216,12 +240,17 @@ class BreadthFirstCrawler:
                                 continue
                             if normalized in discovered_urls or normalized in visited_urls:
                                 continue
-                            queue.append(
-                                CrawlTarget(url=normalized, depth=target.depth + 1, source=target.source)
-                            )
+                            queue.append(CrawlTarget(
+                                url=normalized,
+                                depth=target.depth + 1,
+                                source=target.source,
+                            ))
                             discovered_urls.add(normalized)
 
-            return pages, skipped_pages, errors, logs, {"discovered": len(discovered_urls)}
+            return (
+                pages, skipped_pages, errors, logs,
+                {"discovered": len(discovered_urls)},
+            )
         finally:
             fetcher.close()
 
@@ -240,42 +269,72 @@ class BreadthFirstCrawler:
                 try:
                     fetched = fetcher.render(target.url, max_bytes=max_bytes)
                 except FetchError as exc:
-                    return ScrapeIssue(url=target.url, reason="Error fetching page", detail=str(exc))
+                    return ScrapeIssue(
+                        url=target.url,
+                        reason="Error fetching page",
+                        detail=str(exc),
+                    )
             else:
-                return ScrapeIssue(url=target.url, reason="Error fetching page", detail=str(fetched))
+                return ScrapeIssue(
+                    url=target.url,
+                    reason="Error fetching page",
+                    detail=str(fetched),
+                )
 
         if not self._is_html_like(fetched.content_type):
-            return ScrapeIssue(url=target.url, reason="Skipped non-HTML response", detail=fetched.content_type)
+            return ScrapeIssue(
+                url=target.url,
+                reason="Skipped non-HTML response",
+                detail=fetched.content_type,
+            )
 
         try:
             parsed = parse_page(fetched.text, target.url, fetched.final_url)
         except Exception as exc:
-            return ScrapeIssue(url=target.url, reason="Error parsing page", detail=str(exc))
+            return ScrapeIssue(
+                url=target.url,
+                reason="Error parsing page",
+                detail=str(exc),
+            )
 
         canonical_url = canonicalize_url(
             parsed.canonical_url,
             include_query_params=request.include_query_params,
         )
         if is_skippable_url(canonical_url):
-            return ScrapeIssue(url=target.url, reason="Skipped canonical non-content page")
+            return ScrapeIssue(
+                url=target.url,
+                reason="Skipped canonical non-content page",
+            )
 
         try:
-            extracted = extractor.extract(fetched.text, fetched.final_url, request.boilerplate_mode)
+            extracted = extractor.extract(
+                fetched.text, fetched.final_url,
+                request.boilerplate_mode,
+            )
         except Exception as exc:
-            return ScrapeIssue(url=target.url, reason="Error extracting content", detail=str(exc))
+            return ScrapeIssue(
+                url=target.url,
+                reason="Error extracting content",
+                detail=str(exc),
+            )
 
         if request.use_browser_fallback and word_count(extracted.text_content) < max(
             100, self.settings.developer.minimum_text_length // 2
         ):
             try:
                 rendered = fetcher.render(target.url, max_bytes=max_bytes)
-                rendered_parsed = parse_page(rendered.text, target.url, rendered.final_url)
+                rendered_parsed = parse_page(
+                    rendered.text, target.url, rendered.final_url,
+                )
                 rendered_extracted = extractor.extract(
                     rendered.text,
                     rendered.final_url,
                     request.boilerplate_mode,
                 )
-                if word_count(rendered_extracted.text_content) > word_count(extracted.text_content):
+                if word_count(rendered_extracted.text_content) > word_count(
+                    extracted.text_content
+                ):
                     fetched = rendered
                     parsed = rendered_parsed
                     extracted = rendered_extracted
@@ -287,7 +346,10 @@ class BreadthFirstCrawler:
                 pass
 
         if word_count(extracted.text_content) < 40:
-            return ScrapeIssue(url=target.url, reason="Skipped page with too little readable content")
+            return ScrapeIssue(
+                url=target.url,
+                reason="Skipped page with too little readable content",
+            )
 
         duplicate = deduper.find_duplicate(canonical_url, extracted.text_content)
         if duplicate:
@@ -311,7 +373,8 @@ class BreadthFirstCrawler:
             word_count=word_count(extracted.text_content),
             images=extracted.images,
         )
-        return ProcessedPage(page=page, links=[link.url for link in parsed.links])
+        links = [link.url for link in parsed.links]
+        return ProcessedPage(page=page, links=links)
 
     def _discover_sitemap_links(
         self,
@@ -321,17 +384,24 @@ class BreadthFirstCrawler:
         robots: RobotsPolicy,
         max_bytes: int,
     ) -> list[str]:
-        sitemap_queue = deque(robots.known_sitemaps(start_url) + candidate_sitemap_urls(start_url))
+        sitemap_queue = deque(
+            robots.known_sitemaps(start_url)
+            + candidate_sitemap_urls(start_url)
+        )
         seen_sitemaps: set[str] = set()
         discovered_links: list[str] = []
 
-        while sitemap_queue and len(discovered_links) < self.settings.developer.max_sitemap_urls:
+        max_urls = self.settings.developer.max_sitemap_urls
+        while sitemap_queue and len(discovered_links) < max_urls:
             sitemap_url = sitemap_queue.popleft()
             if sitemap_url in seen_sitemaps:
                 continue
             seen_sitemaps.add(sitemap_url)
             try:
-                result = fetcher.fetch(sitemap_url, max_bytes=max_bytes, accept="application/xml,text/xml,*/*;q=0.5")
+                result = fetcher.fetch(
+                    sitemap_url, max_bytes=max_bytes,
+                    accept="application/xml,text/xml,*/*;q=0.5",
+                )
             except FetchError:
                 continue
 
@@ -347,7 +417,10 @@ class BreadthFirstCrawler:
                 raw = loc.get_text(strip=True)
                 if not raw:
                     continue
-                normalized = canonicalize_url(raw, include_query_params=request.include_query_params)
+                normalized = canonicalize_url(
+                    raw,
+                    include_query_params=request.include_query_params,
+                )
                 if not is_supported_url(normalized):
                     continue
                 if not in_scope(normalized, start_url, request.scope):
@@ -355,7 +428,7 @@ class BreadthFirstCrawler:
                 if is_skippable_url(normalized):
                     continue
                 discovered_links.append(normalized)
-                if len(discovered_links) >= self.settings.developer.max_sitemap_urls:
+                if len(discovered_links) >= max_urls:
                     break
 
         return discovered_links
@@ -374,16 +447,27 @@ class BreadthFirstCrawler:
         concurrency: int,
     ) -> list[tuple[CrawlTarget, FetchResult | Exception]]:
         if concurrency <= 1 or len(targets) <= 1:
-            return [(target, self._safe_fetch(fetcher, target.url, max_bytes)) for target in targets]
+            return [
+                (target, self._safe_fetch(fetcher, target.url, max_bytes))
+                for target in targets
+            ]
 
         results: dict[str, FetchResult | Exception] = {}
-        with ThreadPoolExecutor(max_workers=min(concurrency, len(targets))) as executor:
-            futures = {executor.submit(self._safe_fetch, fetcher, target.url, max_bytes): target for target in targets}
+        max_workers = min(concurrency, len(targets))
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(
+                    self._safe_fetch, fetcher, target.url, max_bytes,
+                ): target
+                for target in targets
+            }
             for future, target in futures.items():
                 results[target.url] = future.result()
         return [(target, results[target.url]) for target in targets]
 
-    def _safe_fetch(self, fetcher: PageFetcher, url: str, max_bytes: int) -> FetchResult | Exception:
+    def _safe_fetch(
+        self, fetcher: PageFetcher, url: str, max_bytes: int,
+    ) -> FetchResult | Exception:
         try:
             return fetcher.fetch(url, max_bytes=max_bytes)
         except (FetchError, ContentTooLargeError) as exc:
@@ -391,7 +475,12 @@ class BreadthFirstCrawler:
 
     def _is_html_like(self, content_type: str) -> bool:
         lowered = (content_type or "").lower()
-        return not lowered or "html" in lowered or "xml" in lowered or "text/" in lowered
+        return (
+            not lowered
+            or "html" in lowered
+            or "xml" in lowered
+            or "text/" in lowered
+        )
 
     def _emit(
         self,

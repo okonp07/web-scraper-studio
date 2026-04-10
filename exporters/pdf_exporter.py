@@ -32,7 +32,12 @@ class _ScrapePdfTemplate(BaseDocTemplate):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         frame = Frame(self.leftMargin, self.bottomMargin, self.width, self.height, id="main")
-        self.addPageTemplates([PageTemplate(id="main", frames=[frame], onPage=self._decorate_page)])
+        self.addPageTemplates([
+            PageTemplate(
+                id="main", frames=[frame],
+                onPage=self._decorate_page,
+            ),
+        ])
         self._bookmark_index = 0
 
     def afterFlowable(self, flowable):
@@ -75,7 +80,7 @@ class PdfExporter:
         )
         styles = self._styles()
         story = self._build_story(document_title, pages, include_metadata, include_images, styles)
-        doc.multiBuild(story)
+        doc.multiBuild(story, maxPasses=15)
         return buffer.getvalue()
 
     def _styles(self):
@@ -184,21 +189,40 @@ class PdfExporter:
         story = [
             Spacer(1, 30 * mm),
             Paragraph(escape(title), styles["cover_title"]),
-            Paragraph("Readable website export with structured sections and source attribution.", styles["cover_subtitle"]),
+            Paragraph(
+                "Readable website export with structured"
+                " sections and source attribution.",
+                styles["cover_subtitle"],
+            ),
             Spacer(1, 12 * mm),
             Paragraph(f"Pages included: {len(pages)}", styles["cover_subtitle"]),
-            Paragraph(f"Total words: {sum(page.word_count for page in pages):,}", styles["cover_subtitle"]),
+            Paragraph(
+                f"Total words: {sum(page.word_count for page in pages):,}",
+                styles["cover_subtitle"],
+            ),
             PageBreak(),
         ]
 
-        toc_heading = Paragraph("Contents", styles["toc"])
-        toc_heading.toc_level = 0
-        story.append(toc_heading)
+        story.append(Paragraph("Contents", styles["toc"]))
         toc = TableOfContents()
         toc.levelStyles = [
-            ParagraphStyle(name="toc-level-1", fontName="Helvetica", fontSize=10, leftIndent=8, firstLineIndent=-8, spaceBefore=4),
-            ParagraphStyle(name="toc-level-2", fontName="Helvetica", fontSize=9, leftIndent=18, firstLineIndent=-8, textColor=colors.HexColor("#475467")),
-            ParagraphStyle(name="toc-level-3", fontName="Helvetica", fontSize=8.5, leftIndent=28, firstLineIndent=-8, textColor=colors.HexColor("#667085")),
+            ParagraphStyle(
+                name="toc-level-1", fontName="Helvetica",
+                fontSize=10, leftIndent=8,
+                firstLineIndent=-8, spaceBefore=4,
+            ),
+            ParagraphStyle(
+                name="toc-level-2", fontName="Helvetica",
+                fontSize=9, leftIndent=18,
+                firstLineIndent=-8,
+                textColor=colors.HexColor("#475467"),
+            ),
+            ParagraphStyle(
+                name="toc-level-3", fontName="Helvetica",
+                fontSize=8.5, leftIndent=28,
+                firstLineIndent=-8,
+                textColor=colors.HexColor("#667085"),
+            ),
         ]
         story.extend([toc, PageBreak()])
 
@@ -206,7 +230,10 @@ class PdfExporter:
             title_para = Paragraph(escape(page.title), styles["title"])
             title_para.toc_level = 0
             story.append(title_para)
-            story.append(Paragraph(f"Source URL: {escape(page.final_url)}", styles["meta"]))
+            story.append(Paragraph(
+                f"Source URL: {escape(page.final_url)}",
+                styles["meta"],
+            ))
 
             if include_metadata and (page.publication_date or page.meta_description):
                 meta_parts = []
@@ -216,43 +243,81 @@ class PdfExporter:
                     meta_parts.append(f"Summary: {escape(page.meta_description)}")
                 story.append(Paragraph(" | ".join(meta_parts), styles["meta"]))
 
-            image_lookup = {image.source_url: image for image in page.images}
+            image_lookup = {
+                img.source_url: img for img in page.images
+            }
             for block in page.blocks:
-                story.extend(self._render_block(block, image_lookup, styles, include_images))
+                story.extend(self._render_block(
+                    block, image_lookup, styles, include_images,
+                ))
 
             if index < len(pages):
                 story.append(PageBreak())
 
         return story
 
-    def _render_block(self, block, image_lookup, styles, include_images):
+    def _render_block(
+        self, block, image_lookup, styles, include_images,
+    ):
         flowables = []
         if block.kind == BlockType.HEADING and block.text:
             style = styles["h2"] if (block.level or 2) <= 2 else styles["h3"]
             paragraph = Paragraph(escape(block.text), style)
-            paragraph.toc_level = 1 if (block.level or 2) <= 2 else 2
+            lvl = (block.level or 2)
+            paragraph.toc_level = 1 if lvl <= 2 else 2
             flowables.append(paragraph)
         elif block.kind == BlockType.PARAGRAPH and block.text:
-            flowables.append(Paragraph(escape(block.text), styles["body"]))
+            flowables.append(
+                Paragraph(escape(block.text), styles["body"]),
+            )
         elif block.kind == BlockType.QUOTE and block.text:
-            flowables.append(Paragraph(escape(block.text), styles["quote"]))
+            flowables.append(
+                Paragraph(escape(block.text), styles["quote"]),
+            )
         elif block.kind == BlockType.BULLET_LIST:
-            items = [ListItem(Paragraph(escape(item), styles["body"])) for item in block.items]
-            flowables.append(ListFlowable(items, bulletType="bullet", leftIndent=12))
+            items = [
+                ListItem(Paragraph(escape(item), styles["body"]))
+                for item in block.items
+            ]
+            flowables.append(
+                ListFlowable(items, bulletType="bullet", leftIndent=12),
+            )
             flowables.append(Spacer(1, 4))
         elif block.kind == BlockType.ORDERED_LIST:
-            items = [ListItem(Paragraph(escape(item), styles["body"])) for item in block.items]
-            flowables.append(ListFlowable(items, bulletType="1", leftIndent=12))
+            items = [
+                ListItem(Paragraph(escape(item), styles["body"]))
+                for item in block.items
+            ]
+            flowables.append(
+                ListFlowable(items, bulletType="1", leftIndent=12),
+            )
             flowables.append(Spacer(1, 4))
         elif block.kind == BlockType.TABLE and block.rows:
-            table = Table(block.rows, repeatRows=1)
+            max_cols = max(len(row) for row in block.rows)
+            normalized_rows = [
+                row + [""] * (max_cols - len(row))
+                for row in block.rows
+            ]
+            safe_rows = [
+                [Paragraph(escape(cell), styles["body"]) for cell in row]
+                for row in normalized_rows
+            ]
+            available_width = 174 * mm
+            col_widths = [available_width / max_cols] * max_cols
+            table = Table(
+                safe_rows, repeatRows=1, colWidths=col_widths,
+            )
             table.setStyle(
                 TableStyle(
                     [
-                        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#e2e8f0")),
-                        ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#0f172a")),
-                        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                        ("GRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#cbd5e1")),
+                        ("BACKGROUND", (0, 0), (-1, 0),
+                         colors.HexColor("#e2e8f0")),
+                        ("TEXTCOLOR", (0, 0), (-1, 0),
+                         colors.HexColor("#0f172a")),
+                        ("FONTNAME", (0, 0), (-1, 0),
+                         "Helvetica-Bold"),
+                        ("GRID", (0, 0), (-1, -1), 0.25,
+                         colors.HexColor("#cbd5e1")),
                         ("VALIGN", (0, 0), (-1, -1), "TOP"),
                         ("FONTSIZE", (0, 0), (-1, -1), 8.5),
                         ("LEADING", (0, 0), (-1, -1), 10),
@@ -268,9 +333,15 @@ class PdfExporter:
                 width = float(image.width or 800)
                 height = float(image.height or 500)
                 scale = min(max_width / width, 1.0)
-                flowables.append(Image(str(image.local_path), width=width * scale, height=height * scale))
+                flowables.append(Image(
+                    str(image.local_path),
+                    width=width * scale,
+                    height=height * scale,
+                ))
                 if block.caption:
-                    flowables.append(Paragraph(escape(block.caption), styles["caption"]))
+                    flowables.append(Paragraph(
+                        escape(block.caption), styles["caption"],
+                    ))
                 else:
                     flowables.append(Spacer(1, 4))
         return flowables

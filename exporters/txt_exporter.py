@@ -28,7 +28,10 @@ class TxtExporter:
                 elif block.kind == BlockType.BULLET_LIST:
                     parts.extend(f"- {item}" for item in block.items)
                 elif block.kind == BlockType.ORDERED_LIST:
-                    parts.extend(f"{index}. {item}" for index, item in enumerate(block.items, start=1))
+                    parts.extend(
+                        f"{index}. {item}"
+                        for index, item in enumerate(block.items, start=1)
+                    )
                 elif block.kind == BlockType.TABLE:
                     parts.extend(" | ".join(row) for row in block.rows)
                 elif block.kind == BlockType.IMAGE and block.caption:

@@ -12,7 +12,6 @@ from app.models.schemas import BlockType, BoilerplateMode, ContentBlock, ImageAs
 from app.utils.text import normalize_whitespace, word_count
 from app.utils.url import absolutize_url
 
-
 NOISY_TOKENS = (
     "cookie",
     "consent",
@@ -61,6 +60,8 @@ class ContentExtractor:
         working = BeautifulSoup(html, "lxml")
         self._strip_noise(working, aggressive=mode == BoilerplateMode.AGGRESSIVE)
         readable_html = self._readability_html(str(working))
+        if not readable_html:
+            readable_html = str(working)
         article = BeautifulSoup(readable_html, "lxml")
         blocks, images = self._build_blocks(article, base_url)
         text_content = self._blocks_to_text(blocks)
@@ -99,9 +100,16 @@ class ContentExtractor:
                 tag.decompose()
 
         for tag in list(soup.find_all(True)):
-            signature = " ".join(tag.get("class", []) + [tag.get("id", "")]).lower()
-            if any(token in signature for token in NOISY_TOKENS):
-                tag.decompose()
+            if tag.decomposed if hasattr(tag, "decomposed") else not tag.parent:
+                continue
+            try:
+                classes = tag.get("class", []) or []
+                tag_id = tag.get("id", "") or ""
+                signature = " ".join(list(classes) + [tag_id]).lower()
+                if any(token in signature for token in NOISY_TOKENS):
+                    tag.decompose()
+            except Exception:
+                continue
 
     def _readability_html(self, html: str) -> str:
         try:
@@ -109,7 +117,9 @@ class ContentExtractor:
         except Exception:
             return html
 
-    def _build_blocks(self, soup: BeautifulSoup, base_url: str) -> tuple[list[ContentBlock], list[ImageAsset]]:
+    def _build_blocks(
+        self, soup: BeautifulSoup, base_url: str,
+    ) -> tuple[list[ContentBlock], list[ImageAsset]]:
         container = soup.body or soup
         blocks: list[ContentBlock] = []
         images: list[ImageAsset] = []
@@ -146,7 +156,11 @@ class ContentExtractor:
                 if items:
                     blocks.append(
                         ContentBlock(
-                            kind=BlockType.BULLET_LIST if element.name == "ul" else BlockType.ORDERED_LIST,
+                            kind=(
+                                BlockType.BULLET_LIST
+                                if element.name == "ul"
+                                else BlockType.ORDERED_LIST
+                            ),
                             items=items,
                         )
                     )
@@ -218,14 +232,15 @@ class ContentExtractor:
 
     def _looks_decorative_image(self, src: str, alt_text: str) -> bool:
         signature = f"{src} {alt_text}".lower()
-        return any(token in signature for token in ("logo", "icon", "avatar", "share", "social", "sprite"))
+        decorative = ("logo", "icon", "avatar", "share", "social", "sprite")
+        return any(token in signature for token in decorative)
 
     def _blocks_to_text(self, blocks: list[ContentBlock]) -> str:
         parts: list[str] = []
         for block in blocks:
-            if block.kind == BlockType.HEADING and block.text:
-                parts.append(block.text)
-            elif block.kind in {BlockType.PARAGRAPH, BlockType.QUOTE} and block.text:
+            is_heading = block.kind == BlockType.HEADING and block.text
+            is_body = block.kind in {BlockType.PARAGRAPH, BlockType.QUOTE} and block.text
+            if is_heading or is_body:
                 parts.append(block.text)
             elif block.kind in {BlockType.BULLET_LIST, BlockType.ORDERED_LIST} and block.items:
                 parts.append("\n".join(block.items))

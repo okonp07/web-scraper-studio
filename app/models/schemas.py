@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
 from typing import Self
@@ -25,6 +25,7 @@ class OutputFormat(StrEnum):
     TXT = "txt"
     DOCX = "docx"
     PDF = "pdf"
+    IMAGES = "images"
 
 
 class BoilerplateMode(StrEnum):
@@ -73,7 +74,7 @@ class PageContent(BaseModel):
     text_content: str
     word_count: int = 0
     images: list[ImageAsset] = Field(default_factory=list)
-    scraped_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    scraped_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class ScrapeArtifact(BaseModel):
@@ -108,7 +109,7 @@ class ScrapeResult(BaseModel):
     skipped_pages: list[ScrapeIssue] = Field(default_factory=list)
     errors: list[ScrapeIssue] = Field(default_factory=list)
     logs: list[str] = Field(default_factory=list)
-    generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class ScrapeRequest(BaseModel):

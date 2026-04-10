@@ -8,6 +8,7 @@ import streamlit as st
 
 from app.models import BoilerplateMode, CrawlScope, OutputFormat, ScrapeMode, ScrapeRequest
 from app.services.scrape_service import ScrapeService
+from app.ui.about import render_about
 from app.ui.components import (
     render_downloads,
     render_hero,
@@ -18,7 +19,6 @@ from app.ui.components import (
     render_summary,
 )
 from app.ui.theme import inject_theme
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -39,11 +39,25 @@ def main() -> None:
         layout="wide",
     )
     inject_theme(PROJECT_ROOT / "assets" / "theme.css")
-    render_hero()
 
-    service = get_scrape_service()
     if "last_result" not in st.session_state:
         st.session_state["last_result"] = None
+
+    with st.sidebar:
+        page = st.radio(
+            "Navigate",
+            options=["Scraper", "About"],
+            horizontal=True,
+            label_visibility="collapsed",
+        )
+        st.markdown("---")
+
+    if page == "About":
+        render_about()
+        return
+
+    render_hero()
+    service = get_scrape_service()
 
     with st.sidebar:
         st.markdown("## Controls")
@@ -53,11 +67,26 @@ def main() -> None:
             horizontal=False,
         )
         st.markdown("### Crawl boundaries")
-        max_pages = st.slider("Max pages", min_value=1, max_value=120, value=30, disabled=mode_label == "Page Only")
-        max_depth = st.slider("Max depth", min_value=0, max_value=6, value=2, disabled=mode_label == "Page Only")
-        delay_seconds = st.slider("Delay between requests", min_value=0.0, max_value=5.0, value=0.8, step=0.1)
-        concurrency = st.slider("Concurrency", min_value=1, max_value=4, value=1)
-        timeout_seconds = st.slider("Request timeout (seconds)", min_value=5, max_value=60, value=20)
+        page_only = mode_label == "Page Only"
+        max_pages = st.slider(
+            "Max pages", min_value=1, max_value=120,
+            value=30, disabled=page_only,
+        )
+        max_depth = st.slider(
+            "Max depth", min_value=0, max_value=6,
+            value=2, disabled=page_only,
+        )
+        delay_seconds = st.slider(
+            "Delay between requests",
+            min_value=0.0, max_value=5.0, value=0.8, step=0.1,
+        )
+        concurrency = st.slider(
+            "Concurrency", min_value=1, max_value=4, value=1,
+        )
+        timeout_seconds = st.slider(
+            "Request timeout (seconds)",
+            min_value=5, max_value=60, value=20,
+        )
         max_file_size_mb = st.slider("Max page size (MB)", min_value=1, max_value=25, value=6)
 
         include_query_params = st.toggle("Include query parameters", value=False)
@@ -67,14 +96,16 @@ def main() -> None:
             horizontal=False,
             disabled=mode_label == "Page Only",
         )
-        include_sitemap = st.toggle("Use sitemap discovery", value=True, disabled=mode_label == "Page Only")
+        include_sitemap = st.toggle(
+            "Use sitemap discovery", value=True, disabled=page_only,
+        )
         use_browser_fallback = st.toggle("Use browser fallback", value=True)
 
         st.markdown("### Output")
         selected_outputs = st.multiselect(
             "Formats",
-            options=["TXT", "DOCX", "PDF"],
-            default=["TXT", "DOCX", "PDF"],
+            options=["TXT", "DOCX", "PDF", "IMAGES"],
+            default=["TXT", "DOCX", "PDF", "IMAGES"],
         )
         include_images = st.toggle("Include images in PDF", value=True)
         include_metadata = st.toggle("Include metadata", value=True)
@@ -86,11 +117,13 @@ def main() -> None:
 
         st.markdown("### Notes")
         st.caption(
-            "Robots.txt is respected by default. Developers can override that in `config/developer.toml`, "
-            "but the default interface intentionally does not expose it."
+            "Robots.txt is respected by default. Developers can "
+            "override that in `config/developer.toml`, "
+            "but the default interface does not expose it."
         )
         st.caption(
-            "Do not use this tool to bypass authentication, paywalls, captchas, or anti-bot controls."
+            "Do not use this tool to bypass authentication, "
+            "paywalls, captchas, or anti-bot controls."
         )
 
     input_col, info_col = st.columns([1.4, 0.8], gap="large")
@@ -108,7 +141,8 @@ def main() -> None:
         st.info(
             "Page Only extracts the readable body from the exact URL you enter. "
             "Full Scrape walks the site breadth-first, stays in scope, deduplicates content, "
-            "and prepares export-ready documents."
+            "and prepares export-ready documents. The IMAGES format downloads all content "
+            "images with their website labels into a zip archive."
         )
 
     status_container = st.container()
@@ -151,7 +185,10 @@ def main() -> None:
             status_placeholder = status_container.empty()
             logs_placeholder = status_container.empty()
             live_logs: list[str] = []
-            snapshot: dict[str, object] = {"message": "Preparing scrape...", "current_url": request.start_url}
+            snapshot: dict[str, object] = {
+                "message": "Preparing scrape...",
+                "current_url": request.start_url,
+            }
 
             def emit(event: dict[str, object]) -> None:
                 snapshot.update(event)
@@ -202,4 +239,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

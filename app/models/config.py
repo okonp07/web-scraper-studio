@@ -32,10 +32,11 @@ class RuntimeSettings(BaseModel):
     developer: DeveloperSettings = Field(default_factory=DeveloperSettings)
 
     @classmethod
-    def load(cls, project_root: Path) -> "RuntimeSettings":
+    def load(cls, project_root: Path) -> RuntimeSettings:
         """Load runtime settings from env vars plus developer TOML when present."""
 
-        config_path = os.getenv("SCRAPER_DEV_CONFIG", str(project_root / "config" / "developer.toml"))
+        default_cfg = str(project_root / "config" / "developer.toml")
+        config_path = os.getenv("SCRAPER_DEV_CONFIG", default_cfg)
         developer_payload: dict[str, object] = {}
         config_file = Path(config_path)
         if config_file.exists():

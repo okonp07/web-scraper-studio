@@ -42,7 +42,9 @@ def parse_page(html: str, base_url: str, final_url: str) -> ParsedPage:
 
     canonical_tag = soup.select_one("link[rel='canonical']")
     canonical_url = (
-        absolutize_url(final_url, canonical_tag.get("href", "")) if canonical_tag and canonical_tag.get("href") else final_url
+        absolutize_url(final_url, canonical_tag.get("href", ""))
+        if canonical_tag and canonical_tag.get("href")
+        else final_url
     )
 
     meta_description = _first_meta_content(

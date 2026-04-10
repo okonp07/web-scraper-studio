@@ -6,7 +6,6 @@ import hashlib
 import re
 from urllib.parse import urlparse
 
-
 WHITESPACE_RE = re.compile(r"\s+")
 MULTI_BLANK_RE = re.compile(r"\n{3,}")
 NON_FILENAME_RE = re.compile(r"[^a-zA-Z0-9._-]+")

@@ -52,7 +52,8 @@ class DocumentAssembler:
     def _blocks_to_text(self, blocks: list[ContentBlock]) -> str:
         parts: list[str] = []
         for block in blocks:
-            if block.kind in {BlockType.HEADING, BlockType.PARAGRAPH, BlockType.QUOTE} and block.text:
+            text_kinds = {BlockType.HEADING, BlockType.PARAGRAPH, BlockType.QUOTE}
+            if block.kind in text_kinds and block.text:
                 parts.append(block.text)
             elif block.kind in {BlockType.BULLET_LIST, BlockType.ORDERED_LIST} and block.items:
                 parts.append("\n".join(block.items))
