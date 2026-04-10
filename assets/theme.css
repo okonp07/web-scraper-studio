@@ -190,10 +190,18 @@ html, body,
   background: transparent;
 }
 
-.ws-dark [data-testid="stSidebar"] .stTooltipIcon button {
+[data-testid="stSidebar"] .stTooltipIcon button,
+[data-testid="stAppViewContainer"] .stTooltipIcon button,
+[data-testid="stSidebar"] .stTooltipIcon button:hover,
+[data-testid="stAppViewContainer"] .stTooltipIcon button:hover,
+[data-testid="stSidebar"] .stTooltipIcon button:focus-visible,
+[data-testid="stAppViewContainer"] .stTooltipIcon button:focus-visible,
+[data-testid="stSidebar"] .stTooltipIcon button:active,
+[data-testid="stAppViewContainer"] .stTooltipIcon button:active {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  outline: none !important;
   opacity: 1 !important;
 }
 
@@ -202,11 +210,6 @@ html, body,
 .ws-dark [data-testid="stSidebar"] .stTooltipIcon svg {
   color: var(--ws-accent-2) !important;
   opacity: 1 !important;
-}
-
-.ws-dark [data-testid="stSidebar"] .stTooltipIcon button:hover,
-.ws-dark [data-testid="stSidebar"] .stTooltipIcon button:focus-visible {
-  background: transparent !important;
 }
 
 h1, h2, h3, h4 {
