@@ -34,7 +34,7 @@ def render_hero(project_root: Path, dark_mode: bool) -> None:
             <div class="hero-pills">
               <span>TXT, DOCX, PDF, and Images</span>
               <span>Robots-respecting by default</span>
-              <span>Readable book-like exports</span>
+              <span>Human-readable exports</span>
             </div>
           </div>
         </section>
