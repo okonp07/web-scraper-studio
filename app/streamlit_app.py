@@ -18,7 +18,7 @@ from app.ui.components import (
     render_status_card,
     render_summary,
 )
-from app.ui.theme import inject_theme
+from app.ui.theme import apply_theme_class, inject_theme
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -44,12 +44,21 @@ def main() -> None:
         st.session_state["last_result"] = None
 
     with st.sidebar:
-        page = st.radio(
-            "Navigate",
-            options=["Scraper", "About"],
-            horizontal=True,
-            label_visibility="collapsed",
-        )
+        nav_col, theme_col = st.columns([3, 2])
+        with nav_col:
+            page = st.radio(
+                "Navigate",
+                options=["Scraper", "About"],
+                horizontal=True,
+                label_visibility="collapsed",
+            )
+        with theme_col:
+            dark_mode = st.toggle(
+                "Dark mode",
+                value=st.session_state.get("dark_mode", False),
+                key="dark_mode",
+            )
+        apply_theme_class(dark_mode)
         st.markdown("---")
 
     if page == "About":
