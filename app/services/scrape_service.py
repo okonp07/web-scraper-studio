@@ -6,15 +6,23 @@ import io
 import re
 import time
 import zipfile
-from datetime import datetime, timezone
+from collections.abc import Callable
+from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Callable
 
 from PIL import Image as PILImage
 from PIL import UnidentifiedImageError
 
-from app.models import OutputFormat, RuntimeSettings, ScrapeArtifact, ScrapeIssue, ScrapeRequest, ScrapeResult, ScrapeSummary
+from app.models import (
+    OutputFormat,
+    RuntimeSettings,
+    ScrapeArtifact,
+    ScrapeIssue,
+    ScrapeRequest,
+    ScrapeResult,
+    ScrapeSummary,
+)
 from app.utils.logging import setup_logging
 from app.utils.text import safe_filename_from_url
 from exporters.docx_exporter import DocxExporter
@@ -57,7 +65,7 @@ class ScrapeService:
         artifacts: list[ScrapeArtifact] = []
         total_images = 0
         document_title = self._document_title(request.start_url, pages)
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+        timestamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
         export_stem = f"{safe_filename_from_url(request.start_url)}-{timestamp}"
 
         with TemporaryDirectory(prefix="web-scraper-studio-") as temp_dir:
@@ -84,7 +92,8 @@ class ScrapeService:
             if OutputFormat.IMAGES in request.output_formats and pages:
                 self._emit(emit, "Generating IMAGES export...")
                 try:
-                    images_zip = self._build_images_zip(pages, image_fetcher if needs_images else None)
+                    img_fetch = image_fetcher if needs_images else None
+                    images_zip = self._build_images_zip(pages, img_fetch)
                     if images_zip:
                         artifacts.append(
                             ScrapeArtifact(
@@ -123,7 +132,10 @@ class ScrapeService:
             total_words=sum(page.word_count for page in pages),
             total_images=total_images,
             runtime_seconds=runtime_seconds,
-            discovered_pages=crawl_metrics.get("discovered", len(pages) + len(skipped_pages) + len(errors)),
+            discovered_pages=crawl_metrics.get(
+                "discovered",
+                len(pages) + len(skipped_pages) + len(errors),
+            ),
             error_count=len(errors),
         )
 
@@ -189,7 +201,8 @@ class ScrapeService:
                             bytes_data=bytes_data,
                         )
                     )
-            except Exception as exc:  # pragma: no cover - exporter failures are environment-specific
+            # pragma: no cover - exporter failures are environment-specific
+            except Exception as exc:
                 errors.append(
                     ScrapeIssue(
                         url=request.start_url,

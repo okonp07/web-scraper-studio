@@ -37,7 +37,10 @@ class RobotsPolicy:
         parser = RobotFileParser()
         parser.set_url(robots_url)
         try:
-            result = self.fetcher.fetch(robots_url, max_bytes=512_000, accept="text/plain,*/*;q=0.5")
+            result = self.fetcher.fetch(
+                robots_url, max_bytes=512_000,
+                accept="text/plain,*/*;q=0.5",
+            )
         except FetchError:
             return None
 

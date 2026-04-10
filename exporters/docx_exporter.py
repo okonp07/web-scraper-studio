@@ -16,14 +16,17 @@ from app.models.schemas import BlockType, PageContent
 class DocxExporter:
     """Create a readable, navigable Word document."""
 
-    def export(self, document_title: str, pages: list[PageContent], include_metadata: bool) -> bytes:
+    def export(
+        self, document_title: str, pages: list[PageContent],
+        include_metadata: bool,
+    ) -> bytes:
         document = Document()
         self._configure_styles(document)
         self._add_cover(document, document_title, len(pages))
         self._add_summary(document, pages)
         self._add_toc(document)
 
-        for index, page in enumerate(pages, start=1):
+        for _index, page in enumerate(pages, start=1):
             document.add_page_break()
             document.add_heading(page.title, level=1)
             source_line = document.add_paragraph()
@@ -51,7 +54,11 @@ class DocxExporter:
         normal.font.name = "Aptos"
         normal.font.size = Pt(10.5)
 
-        for style_name, size in [("Title", 24), ("Heading 1", 18), ("Heading 2", 14), ("Heading 3", 12)]:
+        heading_styles = [
+            ("Title", 24), ("Heading 1", 18),
+            ("Heading 2", 14), ("Heading 3", 12),
+        ]
+        for style_name, size in heading_styles:
             style = document.styles[style_name]
             style.font.name = "Aptos"
             style.font.size = Pt(size)

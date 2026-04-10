@@ -10,7 +10,6 @@ import tldextract
 
 from app.models.schemas import CrawlScope
 
-
 TRACKING_PARAMS = {
     "fbclid",
     "gclid",

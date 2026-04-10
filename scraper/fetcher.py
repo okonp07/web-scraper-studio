@@ -5,7 +5,6 @@ from __future__ import annotations
 import threading
 import time
 from dataclasses import dataclass
-from typing import Any
 
 import httpx
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
@@ -148,7 +147,11 @@ class PageFetcher:
             with sync_playwright() as playwright:
                 browser = playwright.chromium.launch(headless=True)
                 page = browser.new_page(user_agent=self.user_agent)
-                response = page.goto(url, wait_until="networkidle", timeout=int(self.timeout_seconds * 1000))
+                timeout_ms = int(self.timeout_seconds * 1000)
+                response = page.goto(
+                    url, wait_until="networkidle",
+                    timeout=timeout_ms,
+                )
                 html = page.content()
                 final_url = page.url
                 browser.close()

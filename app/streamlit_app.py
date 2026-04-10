@@ -20,7 +20,6 @@ from app.ui.components import (
 )
 from app.ui.theme import inject_theme
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -68,11 +67,26 @@ def main() -> None:
             horizontal=False,
         )
         st.markdown("### Crawl boundaries")
-        max_pages = st.slider("Max pages", min_value=1, max_value=120, value=30, disabled=mode_label == "Page Only")
-        max_depth = st.slider("Max depth", min_value=0, max_value=6, value=2, disabled=mode_label == "Page Only")
-        delay_seconds = st.slider("Delay between requests", min_value=0.0, max_value=5.0, value=0.8, step=0.1)
-        concurrency = st.slider("Concurrency", min_value=1, max_value=4, value=1)
-        timeout_seconds = st.slider("Request timeout (seconds)", min_value=5, max_value=60, value=20)
+        page_only = mode_label == "Page Only"
+        max_pages = st.slider(
+            "Max pages", min_value=1, max_value=120,
+            value=30, disabled=page_only,
+        )
+        max_depth = st.slider(
+            "Max depth", min_value=0, max_value=6,
+            value=2, disabled=page_only,
+        )
+        delay_seconds = st.slider(
+            "Delay between requests",
+            min_value=0.0, max_value=5.0, value=0.8, step=0.1,
+        )
+        concurrency = st.slider(
+            "Concurrency", min_value=1, max_value=4, value=1,
+        )
+        timeout_seconds = st.slider(
+            "Request timeout (seconds)",
+            min_value=5, max_value=60, value=20,
+        )
         max_file_size_mb = st.slider("Max page size (MB)", min_value=1, max_value=25, value=6)
 
         include_query_params = st.toggle("Include query parameters", value=False)
@@ -82,7 +96,9 @@ def main() -> None:
             horizontal=False,
             disabled=mode_label == "Page Only",
         )
-        include_sitemap = st.toggle("Use sitemap discovery", value=True, disabled=mode_label == "Page Only")
+        include_sitemap = st.toggle(
+            "Use sitemap discovery", value=True, disabled=page_only,
+        )
         use_browser_fallback = st.toggle("Use browser fallback", value=True)
 
         st.markdown("### Output")
@@ -101,11 +117,13 @@ def main() -> None:
 
         st.markdown("### Notes")
         st.caption(
-            "Robots.txt is respected by default. Developers can override that in `config/developer.toml`, "
-            "but the default interface intentionally does not expose it."
+            "Robots.txt is respected by default. Developers can "
+            "override that in `config/developer.toml`, "
+            "but the default interface does not expose it."
         )
         st.caption(
-            "Do not use this tool to bypass authentication, paywalls, captchas, or anti-bot controls."
+            "Do not use this tool to bypass authentication, "
+            "paywalls, captchas, or anti-bot controls."
         )
 
     input_col, info_col = st.columns([1.4, 0.8], gap="large")
@@ -167,7 +185,10 @@ def main() -> None:
             status_placeholder = status_container.empty()
             logs_placeholder = status_container.empty()
             live_logs: list[str] = []
-            snapshot: dict[str, object] = {"message": "Preparing scrape...", "current_url": request.start_url}
+            snapshot: dict[str, object] = {
+                "message": "Preparing scrape...",
+                "current_url": request.start_url,
+            }
 
             def emit(event: dict[str, object]) -> None:
                 snapshot.update(event)
