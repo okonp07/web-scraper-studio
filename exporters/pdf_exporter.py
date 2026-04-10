@@ -69,8 +69,23 @@ class PdfExporter:
         include_metadata: bool,
         include_images: bool,
     ) -> bytes:
-        buffer = BytesIO()
-        doc = _ScrapePdfTemplate(
+        styles = self._styles()
+
+        # Try multiBuild (needed for TOC page numbers).
+        # Falls back to simple build without TOC if it fails.
+        try:
+            return self._build_with_toc(
+                document_title, pages,
+                include_metadata, include_images, styles,
+            )
+        except Exception:
+            return self._build_without_toc(
+                document_title, pages,
+                include_metadata, include_images, styles,
+            )
+
+    def _new_doc(self, buffer: BytesIO) -> _ScrapePdfTemplate:
+        return _ScrapePdfTemplate(
             buffer,
             pagesize=A4,
             leftMargin=18 * mm,
@@ -78,9 +93,31 @@ class PdfExporter:
             topMargin=20 * mm,
             bottomMargin=18 * mm,
         )
-        styles = self._styles()
-        story = self._build_story(document_title, pages, include_metadata, include_images, styles)
-        doc.multiBuild(story, maxPasses=15)
+
+    def _build_with_toc(
+        self, title, pages, include_metadata,
+        include_images, styles,
+    ) -> bytes:
+        buffer = BytesIO()
+        doc = self._new_doc(buffer)
+        story = self._build_story(
+            title, pages, include_metadata,
+            include_images, styles, include_toc=True,
+        )
+        doc.multiBuild(story, maxPasses=20)
+        return buffer.getvalue()
+
+    def _build_without_toc(
+        self, title, pages, include_metadata,
+        include_images, styles,
+    ) -> bytes:
+        buffer = BytesIO()
+        doc = self._new_doc(buffer)
+        story = self._build_story(
+            title, pages, include_metadata,
+            include_images, styles, include_toc=False,
+        )
+        doc.build(story)
         return buffer.getvalue()
 
     def _styles(self):
@@ -185,7 +222,10 @@ class PdfExporter:
             ),
         }
 
-    def _build_story(self, title, pages, include_metadata, include_images, styles):
+    def _build_story(
+        self, title, pages, include_metadata,
+        include_images, styles, *, include_toc=True,
+    ):
         story = [
             Spacer(1, 30 * mm),
             Paragraph(escape(title), styles["cover_title"]),
@@ -195,36 +235,46 @@ class PdfExporter:
                 styles["cover_subtitle"],
             ),
             Spacer(1, 12 * mm),
-            Paragraph(f"Pages included: {len(pages)}", styles["cover_subtitle"]),
             Paragraph(
-                f"Total words: {sum(page.word_count for page in pages):,}",
+                f"Pages included: {len(pages)}",
+                styles["cover_subtitle"],
+            ),
+            Paragraph(
+                f"Total words: "
+                f"{sum(p.word_count for p in pages):,}",
                 styles["cover_subtitle"],
             ),
             PageBreak(),
         ]
 
-        story.append(Paragraph("Contents", styles["toc"]))
-        toc = TableOfContents()
-        toc.levelStyles = [
-            ParagraphStyle(
-                name="toc-level-1", fontName="Helvetica",
-                fontSize=10, leftIndent=8,
-                firstLineIndent=-8, spaceBefore=4,
-            ),
-            ParagraphStyle(
-                name="toc-level-2", fontName="Helvetica",
-                fontSize=9, leftIndent=18,
-                firstLineIndent=-8,
-                textColor=colors.HexColor("#475467"),
-            ),
-            ParagraphStyle(
-                name="toc-level-3", fontName="Helvetica",
-                fontSize=8.5, leftIndent=28,
-                firstLineIndent=-8,
-                textColor=colors.HexColor("#667085"),
-            ),
-        ]
-        story.extend([toc, PageBreak()])
+        if include_toc:
+            story.append(
+                Paragraph("Contents", styles["toc"]),
+            )
+            toc = TableOfContents()
+            toc.levelStyles = [
+                ParagraphStyle(
+                    name="toc-level-1",
+                    fontName="Helvetica",
+                    fontSize=10, leftIndent=8,
+                    firstLineIndent=-8, spaceBefore=4,
+                ),
+                ParagraphStyle(
+                    name="toc-level-2",
+                    fontName="Helvetica",
+                    fontSize=9, leftIndent=18,
+                    firstLineIndent=-8,
+                    textColor=colors.HexColor("#475467"),
+                ),
+                ParagraphStyle(
+                    name="toc-level-3",
+                    fontName="Helvetica",
+                    fontSize=8.5, leftIndent=28,
+                    firstLineIndent=-8,
+                    textColor=colors.HexColor("#667085"),
+                ),
+            ]
+            story.extend([toc, PageBreak()])
 
         for index, page in enumerate(pages, start=1):
             title_para = Paragraph(escape(page.title), styles["title"])
