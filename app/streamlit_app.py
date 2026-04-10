@@ -160,6 +160,8 @@ def main() -> None:
     if start_scrape:
         if not selected_outputs:
             st.error("Select at least one export format before starting.")
+        elif not start_url or not start_url.strip():
+            st.error("Please enter a website URL before starting.")
         else:
             mode = ScrapeMode.PAGE_ONLY if mode_label == "Page Only" else ScrapeMode.FULL_SCRAPE
             scope = (
@@ -167,28 +169,35 @@ def main() -> None:
                 if scope_label == "Same subdomain only"
                 else CrawlScope.ROOT_DOMAIN
             )
-            request = ScrapeRequest(
-                start_url=start_url,
-                mode=mode,
-                max_pages=max_pages,
-                max_depth=max_depth,
-                delay_seconds=delay_seconds,
-                timeout_seconds=timeout_seconds,
-                max_file_size_mb=max_file_size_mb,
-                concurrency=concurrency,
-                include_query_params=include_query_params,
-                scope=scope,
-                include_sitemap=include_sitemap,
-                use_browser_fallback=use_browser_fallback,
-                include_images_in_pdf=include_images,
-                include_metadata=include_metadata,
-                boilerplate_mode=(
-                    BoilerplateMode.CONSERVATIVE
-                    if boilerplate_label == "Conservative"
-                    else BoilerplateMode.AGGRESSIVE
-                ),
-                output_formats=[OutputFormat[item] for item in selected_outputs],
-            )
+            try:
+                request = ScrapeRequest(
+                    start_url=start_url,
+                    mode=mode,
+                    max_pages=max_pages,
+                    max_depth=max_depth,
+                    delay_seconds=delay_seconds,
+                    timeout_seconds=timeout_seconds,
+                    max_file_size_mb=max_file_size_mb,
+                    concurrency=concurrency,
+                    include_query_params=include_query_params,
+                    scope=scope,
+                    include_sitemap=include_sitemap,
+                    use_browser_fallback=use_browser_fallback,
+                    include_images_in_pdf=include_images,
+                    include_metadata=include_metadata,
+                    boilerplate_mode=(
+                        BoilerplateMode.CONSERVATIVE
+                        if boilerplate_label == "Conservative"
+                        else BoilerplateMode.AGGRESSIVE
+                    ),
+                    output_formats=[
+                        OutputFormat[item]
+                        for item in selected_outputs
+                    ],
+                )
+            except Exception as exc:
+                st.error(f"Invalid settings: {exc}")
+                st.stop()
 
             progress_bar = status_container.progress(0.0, text="Preparing scrape...")
             status_placeholder = status_container.empty()
