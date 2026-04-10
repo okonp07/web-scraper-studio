@@ -140,6 +140,14 @@ Supported values:
 - `SCRAPER_USER_AGENT`
 - `SCRAPER_DEV_CONFIG`
 
+## Feedback Collection
+
+The app includes a Feedback page for user submissions.
+
+- In the current implementation, submissions are appended locally to `data/feedback/feedback_submissions.jsonl`.
+- That storage path is intentionally kept out of the public UI.
+- On ephemeral hosts such as Streamlit Community Cloud, another developer should connect the feedback flow to a durable backend such as Supabase, Google Sheets, a database, or an email-based workflow.
+
 ## Running Tests
 
 ```bash

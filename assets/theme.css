@@ -148,6 +148,48 @@ html, body,
   color: var(--ws-text);
 }
 
+[data-testid="stAppViewContainer"] [data-testid="stWidgetLabel"],
+[data-testid="stAppViewContainer"] [data-testid="stWidgetLabel"] * {
+  color: var(--ws-text) !important;
+  opacity: 1 !important;
+}
+
+[data-testid="stAppViewContainer"] [data-baseweb="checkbox"] *,
+[data-testid="stAppViewContainer"] [data-baseweb="radio"] *,
+[data-testid="stAppViewContainer"] [data-baseweb="select"] *,
+[data-testid="stAppViewContainer"] .stCaptionContainer p,
+[data-testid="stAppViewContainer"] label,
+[data-testid="stAppViewContainer"] small,
+[data-testid="stAppViewContainer"] .stSlider p {
+  color: var(--ws-text-secondary) !important;
+  opacity: 1 !important;
+}
+
+[data-testid="stAppViewContainer"] [data-baseweb="select"] > div,
+[data-testid="stAppViewContainer"] [data-testid="stTextArea"] textarea,
+[data-testid="stAppViewContainer"] [data-testid="stTextInput"] input {
+  background: var(--ws-surface-muted) !important;
+  border: 1px solid var(--ws-border-subtle) !important;
+  color: var(--ws-text) !important;
+}
+
+[data-testid="stAppViewContainer"] [data-testid="stTextArea"] textarea::placeholder,
+[data-testid="stAppViewContainer"] [data-testid="stTextInput"] input::placeholder {
+  color: var(--ws-muted) !important;
+  opacity: 1 !important;
+}
+
+[data-testid="stAppViewContainer"] [data-baseweb="select"] svg,
+[data-testid="stAppViewContainer"] [data-baseweb="checkbox"] svg {
+  color: var(--ws-text-secondary) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+[data-testid="stAppViewContainer"] [data-testid="stForm"] {
+  background: transparent;
+}
+
 h1, h2, h3, h4 {
   letter-spacing: -0.02em;
   color: var(--ws-text);

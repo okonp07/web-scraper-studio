@@ -106,7 +106,7 @@ def render_feedback(feedback_service: FeedbackService) -> None:
 
     with info_col:
         st.markdown(
-            f"""
+            """
             <div class="about-card">
               <h2>What Good Feedback Looks Like</h2>
               <p>
@@ -121,16 +121,16 @@ def render_feedback(feedback_service: FeedbackService) -> None:
               </p>
             </div>
             <div class="about-card">
-              <h2>Where Submissions Go</h2>
+              <h2>Why Your Feedback Matters</h2>
               <p>
-                This form currently stores submissions in a local JSONL file at
-                <code>{feedback_service.storage_path}</code>.
+                Practical feedback helps shape the roadmap. It tells us where the
+                interface is confusing, which exports need refinement, and which
+                websites or document patterns still need better support.
               </p>
               <p>
-                For durable production collection on ephemeral hosts, another
-                developer can connect this page to a backend such as Supabase,
-                Google Sheets, a database, or an email workflow without changing
-                the rest of the app experience.
+                Whether you are reporting a bug, suggesting a feature, or
+                describing a research workflow, your input can guide meaningful
+                improvements for future users of the platform.
               </p>
             </div>
             """,
