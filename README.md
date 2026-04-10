@@ -26,6 +26,7 @@ It is designed for readable research capture, documentation workflows, and conte
 web-scraper-studio/
 ├── .github/workflows/ci.yml
 ├── .streamlit/config.toml
+├── app.py
 ├── app/
 │   ├── models/
 │   ├── services/
@@ -100,7 +101,7 @@ If you do not install Playwright, the app still works for normal HTML pages. Onl
 ## Run Locally
 
 ```bash
-streamlit run app/streamlit_app.py
+streamlit run app.py
 ```
 
 Or use:
@@ -158,7 +159,7 @@ make check
 2. In Streamlit Community Cloud, create a new app and point it to:
    - Repository: your fork
    - Branch: `main`
-   - Main file path: `app/streamlit_app.py`
+   - Main file path: `app.py`
 3. Add any environment variables you need in the Streamlit app settings.
 4. Deploy.
 
@@ -218,4 +219,3 @@ Notes:
 - Richer per-page preview with images
 - Smarter semantic duplicate detection
 - Optional authenticated scraping for first-party/internal sites where you control access
-

@@ -10,7 +10,7 @@ playwright-install:
 	playwright install chromium
 
 run:
-	streamlit run app/streamlit_app.py
+	streamlit run app.py
 
 test:
 	pytest
@@ -19,4 +19,3 @@ lint:
 	ruff check .
 
 check: lint test
-
