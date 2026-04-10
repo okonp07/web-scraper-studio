@@ -75,7 +75,7 @@ class PdfExporter:
         )
         styles = self._styles()
         story = self._build_story(document_title, pages, include_metadata, include_images, styles)
-        doc.multiBuild(story)
+        doc.multiBuild(story, maxPasses=15)
         return buffer.getvalue()
 
     def _styles(self):
@@ -191,9 +191,7 @@ class PdfExporter:
             PageBreak(),
         ]
 
-        toc_heading = Paragraph("Contents", styles["toc"])
-        toc_heading.toc_level = 0
-        story.append(toc_heading)
+        story.append(Paragraph("Contents", styles["toc"]))
         toc = TableOfContents()
         toc.levelStyles = [
             ParagraphStyle(name="toc-level-1", fontName="Helvetica", fontSize=10, leftIndent=8, firstLineIndent=-8, spaceBefore=4),
@@ -245,7 +243,15 @@ class PdfExporter:
             flowables.append(ListFlowable(items, bulletType="1", leftIndent=12))
             flowables.append(Spacer(1, 4))
         elif block.kind == BlockType.TABLE and block.rows:
-            table = Table(block.rows, repeatRows=1)
+            max_cols = max(len(row) for row in block.rows)
+            normalized_rows = [row + [""] * (max_cols - len(row)) for row in block.rows]
+            safe_rows = [
+                [Paragraph(escape(cell), styles["body"]) for cell in row]
+                for row in normalized_rows
+            ]
+            available_width = 174 * mm
+            col_widths = [available_width / max_cols] * max_cols
+            table = Table(safe_rows, repeatRows=1, colWidths=col_widths)
             table.setStyle(
                 TableStyle(
                     [

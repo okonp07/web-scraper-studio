@@ -25,6 +25,7 @@ class OutputFormat(StrEnum):
     TXT = "txt"
     DOCX = "docx"
     PDF = "pdf"
+    IMAGES = "images"
 
 
 class BoilerplateMode(StrEnum):

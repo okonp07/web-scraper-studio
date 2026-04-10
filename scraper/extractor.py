@@ -61,6 +61,8 @@ class ContentExtractor:
         working = BeautifulSoup(html, "lxml")
         self._strip_noise(working, aggressive=mode == BoilerplateMode.AGGRESSIVE)
         readable_html = self._readability_html(str(working))
+        if not readable_html:
+            readable_html = str(working)
         article = BeautifulSoup(readable_html, "lxml")
         blocks, images = self._build_blocks(article, base_url)
         text_content = self._blocks_to_text(blocks)
@@ -99,9 +101,16 @@ class ContentExtractor:
                 tag.decompose()
 
         for tag in list(soup.find_all(True)):
-            signature = " ".join(tag.get("class", []) + [tag.get("id", "")]).lower()
-            if any(token in signature for token in NOISY_TOKENS):
-                tag.decompose()
+            if tag.decomposed if hasattr(tag, "decomposed") else not tag.parent:
+                continue
+            try:
+                classes = tag.get("class", []) or []
+                tag_id = tag.get("id", "") or ""
+                signature = " ".join(list(classes) + [tag_id]).lower()
+                if any(token in signature for token in NOISY_TOKENS):
+                    tag.decompose()
+            except Exception:
+                continue
 
     def _readability_html(self, html: str) -> str:
         try:

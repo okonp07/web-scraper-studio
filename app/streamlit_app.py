@@ -8,6 +8,7 @@ import streamlit as st
 
 from app.models import BoilerplateMode, CrawlScope, OutputFormat, ScrapeMode, ScrapeRequest
 from app.services.scrape_service import ScrapeService
+from app.ui.about import render_about
 from app.ui.components import (
     render_downloads,
     render_hero,
@@ -39,11 +40,25 @@ def main() -> None:
         layout="wide",
     )
     inject_theme(PROJECT_ROOT / "assets" / "theme.css")
-    render_hero()
 
-    service = get_scrape_service()
     if "last_result" not in st.session_state:
         st.session_state["last_result"] = None
+
+    with st.sidebar:
+        page = st.radio(
+            "Navigate",
+            options=["Scraper", "About"],
+            horizontal=True,
+            label_visibility="collapsed",
+        )
+        st.markdown("---")
+
+    if page == "About":
+        render_about()
+        return
+
+    render_hero()
+    service = get_scrape_service()
 
     with st.sidebar:
         st.markdown("## Controls")
@@ -73,8 +88,8 @@ def main() -> None:
         st.markdown("### Output")
         selected_outputs = st.multiselect(
             "Formats",
-            options=["TXT", "DOCX", "PDF"],
-            default=["TXT", "DOCX", "PDF"],
+            options=["TXT", "DOCX", "PDF", "IMAGES"],
+            default=["TXT", "DOCX", "PDF", "IMAGES"],
         )
         include_images = st.toggle("Include images in PDF", value=True)
         include_metadata = st.toggle("Include metadata", value=True)
@@ -108,7 +123,8 @@ def main() -> None:
         st.info(
             "Page Only extracts the readable body from the exact URL you enter. "
             "Full Scrape walks the site breadth-first, stays in scope, deduplicates content, "
-            "and prepares export-ready documents."
+            "and prepares export-ready documents. The IMAGES format downloads all content "
+            "images with their website labels into a zip archive."
         )
 
     status_container = st.container()
@@ -202,4 +218,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
