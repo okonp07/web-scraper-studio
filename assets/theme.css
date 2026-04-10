@@ -190,6 +190,34 @@ html, body,
   background: transparent;
 }
 
+[data-testid="stSidebar"] .stTooltipIcon button,
+[data-testid="stAppViewContainer"] .stTooltipIcon button {
+  background: transparent !important;
+  border: none !important;
+  color: var(--ws-accent-2) !important;
+  opacity: 1 !important;
+}
+
+[data-testid="stSidebar"] .stTooltipIcon .icon,
+[data-testid="stAppViewContainer"] .stTooltipIcon .icon,
+[data-testid="stSidebar"] .stTooltipIcon svg,
+[data-testid="stAppViewContainer"] .stTooltipIcon svg,
+[data-testid="stSidebar"] .stTooltipIcon svg path,
+[data-testid="stAppViewContainer"] .stTooltipIcon svg path {
+  color: var(--ws-accent-2) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+  opacity: 1 !important;
+}
+
+[data-testid="stSidebar"] .stTooltipIcon button:hover,
+[data-testid="stAppViewContainer"] .stTooltipIcon button:hover,
+[data-testid="stSidebar"] .stTooltipIcon button:focus-visible,
+[data-testid="stAppViewContainer"] .stTooltipIcon button:focus-visible {
+  background: rgba(125, 211, 252, 0.12) !important;
+  border-radius: 999px;
+}
+
 h1, h2, h3, h4 {
   letter-spacing: -0.02em;
   color: var(--ws-text);
