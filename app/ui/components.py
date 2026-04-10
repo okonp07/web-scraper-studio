@@ -133,8 +133,12 @@ def render_downloads(result: ScrapeResult) -> None:
     columns = st.columns(len(result.artifacts))
     for column, artifact in zip(columns, result.artifacts, strict=False):
         with column:
+            if artifact.format.value == "images":
+                label = "Download Images (ZIP)"
+            else:
+                label = f"Download {artifact.format.value.upper()}"
             st.download_button(
-                label=f"Download {artifact.format.value.upper()}",
+                label=label,
                 data=artifact.bytes_data,
                 file_name=artifact.filename,
                 mime=artifact.mime_type,

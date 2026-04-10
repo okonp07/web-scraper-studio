@@ -78,7 +78,7 @@ def main() -> None:
         st.markdown("### Crawl boundaries")
         page_only = mode_label == "Page Only"
         max_pages = st.slider(
-            "Max pages", min_value=1, max_value=120,
+            "Max pages", min_value=1, max_value=2000,
             value=30, disabled=page_only,
         )
         max_depth = st.slider(

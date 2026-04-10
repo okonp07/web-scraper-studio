@@ -148,7 +148,7 @@ class ScrapeRequest(BaseModel):
         if self.mode == ScrapeMode.PAGE_ONLY:
             self.max_pages = 1
             self.max_depth = 0
-        self.max_pages = max(1, min(self.max_pages, 500))
+        self.max_pages = max(1, min(self.max_pages, 2000))
         self.max_depth = max(0, min(self.max_depth, 8))
         self.delay_seconds = max(0.0, min(self.delay_seconds, 30.0))
         self.timeout_seconds = max(5.0, min(self.timeout_seconds, 120.0))
