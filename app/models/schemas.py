@@ -33,6 +33,15 @@ class BoilerplateMode(StrEnum):
     AGGRESSIVE = "aggressive"
 
 
+class FeedbackCategory(StrEnum):
+    GENERAL = "general_feedback"
+    BUG = "bug_report"
+    FEATURE = "feature_request"
+    UX = "ux_suggestion"
+    PERFORMANCE = "performance"
+    OTHER = "other"
+
+
 class BlockType(StrEnum):
     HEADING = "heading"
     PARAGRAPH = "paragraph"
@@ -112,6 +121,35 @@ class ScrapeResult(BaseModel):
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
+class FeedbackSubmission(BaseModel):
+    name: str | None = None
+    email: str | None = None
+    role: str | None = None
+    category: FeedbackCategory = FeedbackCategory.GENERAL
+    rating: int = Field(default=4, ge=1, le=5)
+    message: str = Field(min_length=10, max_length=4000)
+    improvement_ideas: str | None = None
+    allow_follow_up: bool = False
+    page_context: str | None = None
+    submitted_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+    @field_validator("name", "email", "role", "improvement_ideas", "page_context", mode="before")
+    @classmethod
+    def _normalize_optional_text(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        text = str(value).strip()
+        return text or None
+
+    @field_validator("message", mode="before")
+    @classmethod
+    def _normalize_message(cls, value: str) -> str:
+        text = str(value or "").strip()
+        if not text:
+            raise ValueError("Please enter your feedback before submitting.")
+        return text
+
+
 class ScrapeRequest(BaseModel):
     start_url: str
     mode: ScrapeMode
@@ -157,4 +195,3 @@ class ScrapeRequest(BaseModel):
         if not self.output_formats:
             raise ValueError("Select at least one output format.")
         return self
-

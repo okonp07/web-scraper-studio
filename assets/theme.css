@@ -29,6 +29,9 @@
   --ws-hero-g2: rgba(240, 252, 250, 0.9);
   --ws-grad-from: #0f766e;
   --ws-grad-to: #0ea5e9;
+  --ws-info-bg: rgba(14, 165, 233, 0.10);
+  --ws-info-border: rgba(14, 165, 233, 0.22);
+  --ws-info-text: #0f4c81;
 }
 
 /* ─── Dark mode ─── */
@@ -60,6 +63,9 @@
   --ws-hero-g2: rgba(17, 28, 46, 0.9);
   --ws-grad-from: #0f766e;
   --ws-grad-to: #0ea5e9;
+  --ws-info-bg: rgba(96, 165, 250, 0.14);
+  --ws-info-border: rgba(147, 197, 253, 0.32);
+  --ws-info-text: #c9e8ff;
 }
 
 /* ─── Base ─── */
@@ -85,23 +91,29 @@ html, body,
 
 [data-testid="stSidebarCollapseButton"],
 [data-testid="stExpandSidebarButton"] {
-  color: var(--ws-text) !important;
+  color: var(--ws-accent-2) !important;
   opacity: 1 !important;
 }
 
+[data-testid="stSidebarCollapseButton"] *,
+[data-testid="stExpandSidebarButton"] *,
 [data-testid="stSidebarCollapseButton"] button,
 [data-testid="stExpandSidebarButton"] button,
+[data-testid="stSidebarCollapseButton"] span,
+[data-testid="stExpandSidebarButton"] span,
 [data-testid="stSidebarCollapseButton"] svg,
-[data-testid="stExpandSidebarButton"] svg {
-  color: var(--ws-text) !important;
-  fill: var(--ws-text) !important;
-  stroke: var(--ws-text) !important;
+[data-testid="stExpandSidebarButton"] svg,
+[data-testid="stSidebarCollapseButton"] svg path,
+[data-testid="stExpandSidebarButton"] svg path {
+  color: var(--ws-accent-2) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
   opacity: 1 !important;
 }
 
 [data-testid="stSidebarCollapseButton"] button:hover,
 [data-testid="stExpandSidebarButton"] button:hover {
-  background: var(--ws-soft) !important;
+  background: rgba(125, 211, 252, 0.12) !important;
   border-radius: 999px;
 }
 
@@ -240,6 +252,21 @@ h1, h2, h3, h4 {
   border: 1px solid var(--ws-border);
   font-size: 0.88rem;
   color: var(--ws-text-secondary);
+}
+
+.info-panel {
+  padding: 1.1rem 1.15rem;
+  border-radius: 20px;
+  background: linear-gradient(145deg, var(--ws-info-bg), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--ws-info-border);
+  box-shadow: var(--ws-shadow);
+}
+
+.info-panel p {
+  margin: 0.45rem 0 0;
+  color: var(--ws-info-text);
+  line-height: 1.7;
+  font-size: 0.96rem;
 }
 
 /* ─── Status / Result / Log cards ─── */

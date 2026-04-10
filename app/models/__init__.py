@@ -6,6 +6,8 @@ from .schemas import (
     BoilerplateMode,
     ContentBlock,
     CrawlScope,
+    FeedbackCategory,
+    FeedbackSubmission,
     OutputFormat,
     PageContent,
     ScrapeArtifact,
@@ -22,6 +24,8 @@ __all__ = [
     "ContentBlock",
     "CrawlScope",
     "DeveloperSettings",
+    "FeedbackCategory",
+    "FeedbackSubmission",
     "OutputFormat",
     "PageContent",
     "RuntimeSettings",
@@ -32,4 +36,3 @@ __all__ = [
     "ScrapeResult",
     "ScrapeSummary",
 ]
-

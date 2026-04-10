@@ -7,12 +7,15 @@ from pathlib import Path
 import streamlit as st
 
 from app.models import BoilerplateMode, CrawlScope, OutputFormat, ScrapeMode, ScrapeRequest
+from app.services.feedback_service import FeedbackService
 from app.services.scrape_service import ScrapeService
 from app.ui.about import render_about
+from app.ui.feedback import render_feedback
 from app.ui.components import (
     render_downloads,
     render_footer,
     render_hero,
+    render_info_panel,
     render_issues,
     render_log_panel,
     render_previews,
@@ -29,6 +32,13 @@ def get_scrape_service() -> ScrapeService:
     """Create and cache the scrape service."""
 
     return ScrapeService(PROJECT_ROOT)
+
+
+@st.cache_resource
+def get_feedback_service() -> FeedbackService:
+    """Create and cache the feedback service."""
+
+    return FeedbackService(PROJECT_ROOT)
 
 
 def main() -> None:
@@ -49,21 +59,28 @@ def main() -> None:
         with nav_col:
             page = st.radio(
                 "Navigate",
-                options=["Scraper", "About"],
+                options=["Scraper", "About", "Feedback"],
                 horizontal=True,
                 label_visibility="collapsed",
+                help="Switch between the main scraper workflow, the project overview, and the feedback form.",
             )
         with theme_col:
             dark_mode = st.toggle(
                 "Dark mode",
                 value=st.session_state.get("dark_mode", False),
                 key="dark_mode",
+                help="Switch the interface between light mode and dark mode.",
             )
         apply_theme_class(dark_mode)
         st.markdown("---")
 
     if page == "About":
         render_about(PROJECT_ROOT)
+        render_footer()
+        return
+
+    if page == "Feedback":
+        render_feedback(get_feedback_service())
         render_footer()
         return
 
@@ -76,54 +93,88 @@ def main() -> None:
             "Scrape mode",
             options=["Page Only", "Full Scrape"],
             horizontal=False,
+            help="Page Only extracts one exact URL. Full Scrape follows in-scope internal links and builds a multi-page result.",
         )
         st.markdown("### Crawl boundaries")
         page_only = mode_label == "Page Only"
         max_pages = st.slider(
             "Max pages", min_value=1, max_value=2000,
             value=30, disabled=page_only,
+            help="Sets the maximum number of pages Full Scrape may visit. Keep it lower for faster runs and raise it for broader site coverage.",
         )
         max_depth = st.slider(
             "Max depth", min_value=0, max_value=6,
             value=2, disabled=page_only,
+            help="Controls how many link levels away from the starting page the crawler may go during Full Scrape.",
         )
         delay_seconds = st.slider(
             "Delay between requests",
             min_value=0.0, max_value=5.0, value=0.8, step=0.1,
+            help="Adds a pause between requests to reduce load on the target website and lower the chance of rate limiting.",
         )
         concurrency = st.slider(
             "Concurrency", min_value=1, max_value=4, value=1,
+            help="Sets how many pages may be fetched in parallel. Conservative values are safer and easier on target sites.",
         )
         timeout_seconds = st.slider(
             "Request timeout (seconds)",
             min_value=5, max_value=60, value=20,
+            help="Defines how long the app waits for each page request before treating it as a timeout.",
         )
-        max_file_size_mb = st.slider("Max page size (MB)", min_value=1, max_value=25, value=6)
+        max_file_size_mb = st.slider(
+            "Max page size (MB)",
+            min_value=1,
+            max_value=25,
+            value=6,
+            help="Skips unusually large HTML responses so exports stay manageable and the crawler avoids oversized pages.",
+        )
 
-        include_query_params = st.toggle("Include query parameters", value=False)
+        include_query_params = st.toggle(
+            "Include query parameters",
+            value=False,
+            help="Treats URLs with different query strings as separate pages. Leave this off to avoid duplicates on most sites.",
+        )
         scope_label = st.radio(
             "Scope",
             options=["Same subdomain only", "Entire root domain"],
             horizontal=False,
             disabled=mode_label == "Page Only",
+            help="Choose whether Full Scrape stays on the exact subdomain or can follow links across the wider root domain.",
         )
         include_sitemap = st.toggle(
-            "Use sitemap discovery", value=True, disabled=page_only,
+            "Use sitemap discovery",
+            value=True,
+            disabled=page_only,
+            help="Checks sitemap.xml when available so the crawler can discover in-scope pages more efficiently.",
         )
-        use_browser_fallback = st.toggle("Use browser fallback", value=True)
+        use_browser_fallback = st.toggle(
+            "Use browser fallback",
+            value=True,
+            help="Uses browser rendering for JS-heavy pages when standard HTML fetching is not enough.",
+        )
 
         st.markdown("### Output")
         selected_outputs = st.multiselect(
             "Formats",
             options=["TXT", "DOCX", "PDF", "IMAGES"],
             default=["TXT", "DOCX", "PDF", "IMAGES"],
+            help="Choose which downloadable outputs to generate after the scrape finishes.",
         )
-        include_images = st.toggle("Include images in PDF", value=True)
-        include_metadata = st.toggle("Include metadata", value=True)
+        include_images = st.toggle(
+            "Include images in PDF",
+            value=True,
+            help="Adds relevant content images to the PDF export when they can be accessed and processed cleanly.",
+        )
+        include_metadata = st.toggle(
+            "Include metadata",
+            value=True,
+            help="Includes useful source details such as URLs, timestamps, and page metadata in generated exports.",
+        )
         boilerplate_label = st.radio(
             "Boilerplate cleanup",
             options=["Conservative", "Aggressive"],
             horizontal=False,
+            help="Conservative cleanup keeps more original page material. Aggressive cleanup removes more repeated clutter and promo content.",
         )
 
         st.markdown("### Notes")
@@ -149,7 +200,7 @@ def main() -> None:
 
     with info_col:
         st.markdown("### What you get")
-        st.info(
+        render_info_panel(
             "Page Only extracts the readable body from the exact URL you enter. "
             "Full Scrape walks the site breadth-first, stays in scope, deduplicates content, "
             "and prepares export-ready documents. The IMAGES format downloads all content "

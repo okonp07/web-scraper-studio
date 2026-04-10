@@ -61,6 +61,21 @@ def render_footer() -> None:
     )
 
 
+def render_info_panel(text: str) -> None:
+    """Render a polished informational panel."""
+
+    safe_text = html.escape(text)
+    st.markdown(
+        f"""
+        <div class="info-panel">
+          <div class="section-kicker">Quick summary</div>
+          <p>{safe_text}</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def render_status_card(snapshot: dict[str, object]) -> None:
     """Render the live progress summary."""
 
