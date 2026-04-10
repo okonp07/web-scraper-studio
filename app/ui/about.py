@@ -30,56 +30,49 @@ def render_about(project_root: Path) -> None:
         unsafe_allow_html=True,
     )
 
-    overview_col, use_case_col = st.columns(2, gap="large")
-    with overview_col:
-        st.markdown(
-            """
-            <div class="about-card">
-              <h2>What the Solution Does</h2>
-              <p>
-                Web Scraper Studio helps people turn website content into clean,
-                structured outputs that are easier to read, archive, analyze,
-                share, and reuse. Instead of copying fragmented text from a page
-                full of menus, cookie notices, footers, promotional banners, and
-                repeated calls to action, the app focuses on the meaningful body
-                content and preserves its structure for downstream use.
-              </p>
-              <p>
-                It supports two practical workflows. <strong>Page Only</strong>
-                extracts the readable content from one exact URL. <strong>Full
-                Scrape</strong> crawls in breadth-first order within the selected
-                scope, discovers additional internal pages through links and
-                sitemaps, avoids obvious non-content routes where possible, and
-                assembles the results into polished deliverables.
-              </p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    with use_case_col:
-        st.markdown(
-            """
-            <div class="about-card">
-              <h2>The Problem It Solves</h2>
-              <p>
-                Valuable public information is often trapped inside noisy web
-                experiences. Researchers, students, analysts, journalists,
-                compliance teams, product teams, and institutions frequently need
-                accurate website content in a format that can be read offline,
-                cited, reviewed, indexed, or shared internally.
-              </p>
-              <p>
-                Without a tool like this, teams waste time manually copying pages,
-                cleaning formatting by hand, chasing internal links one by one,
-                and rebuilding documents from scratch. Web Scraper Studio reduces
-                that friction and makes high-quality web content capture far more
-                consistent and repeatable.
-              </p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    st.markdown(
+        """
+        <div class="about-pair-grid about-pair-grid-primary">
+          <div class="about-card equal-height-card">
+            <h2>What the Solution Does</h2>
+            <p>
+              Web Scraper Studio helps people turn website content into clean,
+              structured outputs that are easier to read, archive, analyze,
+              share, and reuse. Instead of copying fragmented text from a page
+              full of menus, cookie notices, footers, promotional banners, and
+              repeated calls to action, the app focuses on the meaningful body
+              content and preserves its structure for downstream use.
+            </p>
+            <p>
+              It supports two practical workflows. <strong>Page Only</strong>
+              extracts the readable content from one exact URL. <strong>Full
+              Scrape</strong> crawls in breadth-first order within the selected
+              scope, discovers additional internal pages through links and
+              sitemaps, avoids obvious non-content routes where possible, and
+              assembles the results into polished deliverables.
+            </p>
+          </div>
+          <div class="about-card equal-height-card">
+            <h2>The Problem It Solves</h2>
+            <p>
+              Valuable public information is often trapped inside noisy web
+              experiences. Researchers, students, analysts, journalists,
+              compliance teams, product teams, and institutions frequently need
+              accurate website content in a format that can be read offline,
+              cited, reviewed, indexed, or shared internally.
+            </p>
+            <p>
+              Without a tool like this, teams waste time manually copying pages,
+              cleaning formatting by hand, chasing internal links one by one,
+              and rebuilding documents from scratch. Web Scraper Studio reduces
+              that friction and makes high-quality web content capture far more
+              consistent and repeatable.
+            </p>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     st.markdown(
         """
@@ -97,50 +90,75 @@ def render_about(project_root: Path) -> None:
         unsafe_allow_html=True,
     )
 
-    impact_col, ethics_col = st.columns(2, gap="large")
-    with impact_col:
-        st.markdown(
-            """
-            <div class="about-card">
-              <h2>Why It Is Useful to Humanity</h2>
-              <p>
-                Better access to clean information makes better decisions possible.
-                This tool can support education, research, journalism, knowledge
-                preservation, accessibility workflows, policy review, digital
-                archiving, legal and compliance analysis, and organizational memory.
-              </p>
-              <p>
-                When web knowledge is converted into readable, portable, structured
-                documents, it becomes easier to study, compare, summarize, audit,
-                translate, store, and share. That is especially useful for teams
-                working across limited bandwidth, mixed devices, or environments
-                where dependable offline references matter.
-              </p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    st.markdown(
+        """
+        <div class="about-pair-grid about-pair-grid-secondary">
+          <div class="about-card equal-height-card">
+            <h2>Why It Is Useful to Humanity</h2>
+            <p>
+              Better access to clean information makes better decisions possible.
+              This tool can support education, research, journalism, knowledge
+              preservation, accessibility workflows, policy review, digital
+              archiving, legal and compliance analysis, and organizational memory.
+            </p>
+            <p>
+              When web knowledge is converted into readable, portable, structured
+              documents, it becomes easier to study, compare, summarize, audit,
+              translate, store, and share. That is especially useful for teams
+              working across limited bandwidth, mixed devices, or environments
+              where dependable offline references matter.
+            </p>
+          </div>
+          <div class="about-card equal-height-card">
+            <h2>Responsible by Design</h2>
+            <p>
+              Web Scraper Studio is built for legitimate, ethical content
+              extraction. It respects robots.txt by default, stays inside the
+              chosen crawl boundary, and does not attempt to bypass
+              authentication, paywalls, captchas, or anti-bot protections.
+            </p>
+            <p>
+              That makes the app useful for responsible public-web capture while
+              still acknowledging the rights, policies, and technical boundaries
+              that website owners put in place.
+            </p>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    with ethics_col:
-        st.markdown(
-            """
-            <div class="about-card">
-              <h2>Responsible by Design</h2>
-              <p>
-                Web Scraper Studio is built for legitimate, ethical content
-                extraction. It respects robots.txt by default, stays inside the
-                chosen crawl boundary, and does not attempt to bypass
-                authentication, paywalls, captchas, or anti-bot protections.
-              </p>
-              <p>
-                That makes the app useful for responsible public-web capture while
-                still acknowledging the rights, policies, and technical boundaries
-                that website owners put in place.
-              </p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    st.markdown(
+        """
+        <div class="about-card">
+          <h2>How Other Developers Can Improve the Project</h2>
+          <p>
+            This project is intentionally designed as a foundation that other
+            developers can extend. A strong next step would be adding table
+            extraction that preserves the same structure, ordering, and visual
+            meaning that tables have on the original website instead of flattening
+            them into plain text.
+          </p>
+          <p>
+            Another high-impact direction is integrating AI systems that can turn
+            scraped material into textbook-style or journal-style outputs. That
+            would make it possible to place images, tables, pull quotes, captions,
+            references, and other diagrams back into the right narrative context
+            so the final documents read like curated publications rather than raw
+            exports.
+          </p>
+          <ul>
+            <li>Add layout-aware table extraction and export support for DOCX and PDF.</li>
+            <li>Use multimodal or LLM-based post-processing to rebuild long-form, book-like content from scraped pages.</li>
+            <li>Introduce citation management, summaries, glossaries, and section-level references for research workflows.</li>
+            <li>Add change detection, scheduled crawls, and version comparison for ongoing monitoring of important websites.</li>
+            <li>Improve image understanding with caption cleanup, diagram classification, OCR, and smarter relevance scoring.</li>
+            <li>Support multilingual translation, semantic search, and RAG-ready export pipelines for downstream AI applications.</li>
+          </ul>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     st.markdown(
         f"""

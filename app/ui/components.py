@@ -26,7 +26,6 @@ def render_hero(project_root: Path, dark_mode: bool) -> None:
           <div class="hero-caption-row">
             <div class="hero-content">
               <p class="eyebrow">Production-ready website extraction</p>
-              <h1 class="hero-title hero-title-compact">Web Scraper Studio</h1>
               <p class="hero-copy">
                 Crawl a single page or an in-scope site, extract the readable content,
                 and export polished, source-aware deliverables.

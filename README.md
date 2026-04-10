@@ -4,6 +4,13 @@ Web Scraper Studio is a production-oriented Streamlit application for scraping e
 
 It is designed for readable research capture, documentation workflows, and content archiving rather than aggressive crawling. By default it respects `robots.txt`, rate limits requests, stays within the intended domain boundary, and avoids common non-content paths like login, cart, checkout, admin, and tag pages.
 
+## Live App
+
+- Streamlit app: [web-scraper-studio.streamlit.app](https://web-scraper-studio.streamlit.app)
+
+> Warning
+> Future works, derivative implementations, or public projects that rely on this codebase should acknowledge the author, Okon Prince.
+
 ## Features
 
 - Page Only mode for extracting the main readable content from one exact URL
@@ -211,6 +218,7 @@ Notes:
 - Do not use this tool to bypass authentication, paywalls, captchas, or anti-bot protections.
 - Keep crawl settings conservative on third-party sites.
 - `robots.txt` is respected by default for a reason. If you override it in a developer config, do so only when you are authorized.
+- If you build future work on top of this codebase, acknowledge the author, Okon Prince, in your derivative project or related publication.
 
 ## Suggested Next Enhancements
 
