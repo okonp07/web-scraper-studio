@@ -83,6 +83,28 @@ html, body,
   border-right: 1px solid var(--ws-border);
 }
 
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stExpandSidebarButton"] {
+  color: var(--ws-text) !important;
+  opacity: 1 !important;
+}
+
+[data-testid="stSidebarCollapseButton"] button,
+[data-testid="stExpandSidebarButton"] button,
+[data-testid="stSidebarCollapseButton"] svg,
+[data-testid="stExpandSidebarButton"] svg {
+  color: var(--ws-text) !important;
+  fill: var(--ws-text) !important;
+  stroke: var(--ws-text) !important;
+  opacity: 1 !important;
+}
+
+[data-testid="stSidebarCollapseButton"] button:hover,
+[data-testid="stExpandSidebarButton"] button:hover {
+  background: var(--ws-soft) !important;
+  border-radius: 999px;
+}
+
 [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {
   opacity: 1 !important;
 }
