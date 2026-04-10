@@ -190,32 +190,23 @@ html, body,
   background: transparent;
 }
 
-[data-testid="stSidebar"] .stTooltipIcon button,
-[data-testid="stAppViewContainer"] .stTooltipIcon button {
+.ws-dark [data-testid="stSidebar"] .stTooltipIcon button {
   background: transparent !important;
   border: none !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+.ws-dark [data-testid="stSidebar"] .stTooltipIcon button,
+.ws-dark [data-testid="stSidebar"] .stTooltipIcon .icon,
+.ws-dark [data-testid="stSidebar"] .stTooltipIcon svg {
   color: var(--ws-accent-2) !important;
   opacity: 1 !important;
 }
 
-[data-testid="stSidebar"] .stTooltipIcon .icon,
-[data-testid="stAppViewContainer"] .stTooltipIcon .icon,
-[data-testid="stSidebar"] .stTooltipIcon svg,
-[data-testid="stAppViewContainer"] .stTooltipIcon svg,
-[data-testid="stSidebar"] .stTooltipIcon svg path,
-[data-testid="stAppViewContainer"] .stTooltipIcon svg path {
-  color: var(--ws-accent-2) !important;
-  fill: currentColor !important;
-  stroke: currentColor !important;
-  opacity: 1 !important;
-}
-
-[data-testid="stSidebar"] .stTooltipIcon button:hover,
-[data-testid="stAppViewContainer"] .stTooltipIcon button:hover,
-[data-testid="stSidebar"] .stTooltipIcon button:focus-visible,
-[data-testid="stAppViewContainer"] .stTooltipIcon button:focus-visible {
-  background: rgba(125, 211, 252, 0.12) !important;
-  border-radius: 999px;
+.ws-dark [data-testid="stSidebar"] .stTooltipIcon button:hover,
+.ws-dark [data-testid="stSidebar"] .stTooltipIcon button:focus-visible {
+  background: transparent !important;
 }
 
 h1, h2, h3, h4 {
