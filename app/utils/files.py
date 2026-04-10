@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import base64
+import mimetypes
+from functools import lru_cache
 from pathlib import Path
 
 
@@ -23,3 +26,11 @@ def human_size(num_bytes: int) -> str:
         value /= 1024
     return f"{num_bytes} B"
 
+
+@lru_cache(maxsize=16)
+def image_data_uri(path: Path) -> str:
+    """Convert a local image into a cacheable data URI for Streamlit HTML blocks."""
+
+    mime_type, _ = mimetypes.guess_type(path.name)
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:{mime_type or 'application/octet-stream'};base64,{encoded}"

@@ -11,6 +11,7 @@ from app.services.scrape_service import ScrapeService
 from app.ui.about import render_about
 from app.ui.components import (
     render_downloads,
+    render_footer,
     render_hero,
     render_issues,
     render_log_panel,
@@ -62,10 +63,11 @@ def main() -> None:
         st.markdown("---")
 
     if page == "About":
-        render_about()
+        render_about(PROJECT_ROOT)
+        render_footer()
         return
 
-    render_hero()
+    render_hero(PROJECT_ROOT, dark_mode)
     service = get_scrape_service()
 
     with st.sidebar:
@@ -253,6 +255,8 @@ def main() -> None:
             render_previews(result)
             render_issues("Skipped pages", result.skipped_pages)
             render_issues("Errors", result.errors)
+
+    render_footer()
 
 
 if __name__ == "__main__":

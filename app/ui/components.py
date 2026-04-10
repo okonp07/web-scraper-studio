@@ -3,33 +3,60 @@
 from __future__ import annotations
 
 import html
+from pathlib import Path
 
 import streamlit as st
 
 from app.models import ScrapeIssue, ScrapeResult, ScrapeSummary
+from app.utils.files import image_data_uri
 from app.utils.text import truncate
 
 
-def render_hero() -> None:
+def render_hero(project_root: Path, dark_mode: bool) -> None:
     """Render the page hero."""
 
+    hero_path = project_root / "assets" / ("hero-dark.png" if dark_mode else "hero-light.png")
+    hero_src = image_data_uri(hero_path)
     st.markdown(
-        """
-        <section class="hero-panel">
-          <div class="hero-content">
-            <p class="eyebrow">Production-ready website extraction</p>
-            <h1 class="hero-title">Web Scraper Studio</h1>
-            <p class="hero-copy">
-              Crawl a single page or a whole site, clean the readable content, and export
-              polished TXT, DOCX, and PDF deliverables with source-aware structure.
-            </p>
+        f"""
+        <section class="hero-panel hero-panel-image">
+          <div class="hero-image-shell">
+            <img src="{hero_src}" alt="Web Scraper Studio hero artwork" class="hero-image"/>
+          </div>
+          <div class="hero-caption-row">
+            <div class="hero-content">
+              <p class="eyebrow">Production-ready website extraction</p>
+              <h1 class="hero-title hero-title-compact">Web Scraper Studio</h1>
+              <p class="hero-copy">
+                Crawl a single page or an in-scope site, extract the readable content,
+                and export polished, source-aware deliverables.
+              </p>
+            </div>
             <div class="hero-pills">
+              <span>TXT, DOCX, PDF, and Images</span>
               <span>Robots-respecting by default</span>
-              <span>Breadth-first full-site mode</span>
-              <span>Readable document exports</span>
+              <span>Readable book-like exports</span>
             </div>
           </div>
         </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_footer() -> None:
+    """Render the shared app footer."""
+
+    st.markdown(
+        """
+        <footer class="app-footer">
+          <p>&copy; Okon Prince, 2026</p>
+          <p>
+            This project is powered with httpx + BeautifulSoup/lxml + readability-lxml +
+            trafilatura, with Playwright as the rendering fallback.
+          </p>
+          <p>enquiries; <a href="mailto:okonp07@gmail.com">okonp07@gmail.com</a></p>
+        </footer>
         """,
         unsafe_allow_html=True,
     )
@@ -184,4 +211,3 @@ def render_issues(title: str, issues: list[ScrapeIssue]) -> None:
                 """,
                 unsafe_allow_html=True,
             )
-

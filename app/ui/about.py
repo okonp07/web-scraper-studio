@@ -2,21 +2,27 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import streamlit as st
 
+from app.utils.files import image_data_uri
 
-def render_about() -> None:
-    """Render the About page with documentation on the app."""
+
+def render_about(project_root: Path) -> None:
+    """Render the About page with project and author information."""
+
+    author_image = image_data_uri(project_root / "assets" / "okon-prince.png")
 
     st.markdown(
         """
-        <section class="hero-panel">
+        <section class="hero-panel about-hero">
           <div class="hero-content">
-            <p class="eyebrow">Documentation</p>
+            <p class="eyebrow">About</p>
             <h1 class="about-title">About Web Scraper Studio</h1>
             <p class="about-subtitle">
-              A production-ready web scraping toolkit that extracts readable content
-              from websites and delivers polished, structured exports.
+              A responsible web extraction studio that turns noisy public web pages into
+              readable, structured, portable knowledge assets.
             </p>
           </div>
         </section>
@@ -24,106 +30,153 @@ def render_about() -> None:
         unsafe_allow_html=True,
     )
 
+    overview_col, use_case_col = st.columns(2, gap="large")
+    with overview_col:
+        st.markdown(
+            """
+            <div class="about-card">
+              <h2>What the Solution Does</h2>
+              <p>
+                Web Scraper Studio helps people turn website content into clean,
+                structured outputs that are easier to read, archive, analyze,
+                share, and reuse. Instead of copying fragmented text from a page
+                full of menus, cookie notices, footers, promotional banners, and
+                repeated calls to action, the app focuses on the meaningful body
+                content and preserves its structure for downstream use.
+              </p>
+              <p>
+                It supports two practical workflows. <strong>Page Only</strong>
+                extracts the readable content from one exact URL. <strong>Full
+                Scrape</strong> crawls in breadth-first order within the selected
+                scope, discovers additional internal pages through links and
+                sitemaps, avoids obvious non-content routes where possible, and
+                assembles the results into polished deliverables.
+              </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with use_case_col:
+        st.markdown(
+            """
+            <div class="about-card">
+              <h2>The Problem It Solves</h2>
+              <p>
+                Valuable public information is often trapped inside noisy web
+                experiences. Researchers, students, analysts, journalists,
+                compliance teams, product teams, and institutions frequently need
+                accurate website content in a format that can be read offline,
+                cited, reviewed, indexed, or shared internally.
+              </p>
+              <p>
+                Without a tool like this, teams waste time manually copying pages,
+                cleaning formatting by hand, chasing internal links one by one,
+                and rebuilding documents from scratch. Web Scraper Studio reduces
+                that friction and makes high-quality web content capture far more
+                consistent and repeatable.
+              </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
     st.markdown(
         """
         <div class="about-card">
-          <h2>What It Does</h2>
-          <p>
-            Web Scraper Studio crawls websites, extracts their readable content,
-            strips away clutter like ads, navigation bars, and cookie banners,
-            and then exports clean, structured documents. It works in two modes:
-          </p>
-          <ul>
-            <li><strong>Page Only</strong> &mdash; Scrape a single page. Paste any URL
-                and get a clean extract of the readable body content.</li>
-            <li><strong>Full Scrape</strong> &mdash; Crawl an entire site breadth-first.
-                The scraper discovers pages via links and sitemaps, deduplicates
-                content, and produces multi-page documents.</li>
-          </ul>
+          <h2>How the Solution Works</h2>
+          <ol>
+            <li><strong>Input and validation.</strong> The app validates the user URL, normalizes it, and lets the user choose between a single-page scrape or a controlled full-site crawl.</li>
+            <li><strong>Responsible acquisition.</strong> Requests use a clear user agent, conservative defaults, request delays, retries, robots.txt compliance, timeout limits, page-size safeguards, and domain restrictions.</li>
+            <li><strong>Content extraction.</strong> The backend fetches pages with <code>httpx</code>, parses HTML with <code>BeautifulSoup</code> and <code>lxml</code>, extracts readable content with <code>readability-lxml</code> and <code>trafilatura</code>, and can fall back to <code>Playwright</code> when a page needs browser rendering.</li>
+            <li><strong>Cleanup and structure preservation.</strong> The pipeline removes repetitive clutter where possible, preserves headings and lists, tracks metadata, normalizes URLs, skips duplicates, and keeps page ordering natural with breadth-first traversal.</li>
+            <li><strong>Export generation.</strong> Results can be downloaded as raw TXT, a human-friendly DOCX, a polished PDF, and an IMAGES package that stores content images alongside the labels or alt text that give them context.</li>
+          </ol>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-          <h2>Export Formats</h2>
-          <ul>
-            <li><strong>TXT</strong> &mdash; Plain text with
-                page separators, headings, and lists.</li>
-            <li><strong>DOCX</strong> &mdash; A formatted Word doc
-                with cover page, TOC, headings, and tables.</li>
-            <li><strong>PDF</strong> &mdash; A polished PDF with
-                cover, bookmarks, images, and page numbers.</li>
-            <li><strong>IMAGES</strong> &mdash; A ZIP of all
-                content images with descriptive labels and a
-                <code>_image_labels.txt</code> manifest.</li>
-          </ul>
+    impact_col, ethics_col = st.columns(2, gap="large")
+    with impact_col:
+        st.markdown(
+            """
+            <div class="about-card">
+              <h2>Why It Is Useful to Humanity</h2>
+              <p>
+                Better access to clean information makes better decisions possible.
+                This tool can support education, research, journalism, knowledge
+                preservation, accessibility workflows, policy review, digital
+                archiving, legal and compliance analysis, and organizational memory.
+              </p>
+              <p>
+                When web knowledge is converted into readable, portable, structured
+                documents, it becomes easier to study, compare, summarize, audit,
+                translate, store, and share. That is especially useful for teams
+                working across limited bandwidth, mixed devices, or environments
+                where dependable offline references matter.
+              </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-          <h2>How to Use</h2>
-          <ul>
-            <li><strong>1. Choose a mode</strong> &mdash;
-                "Page Only" or "Full Scrape".</li>
-            <li><strong>2. Configure boundaries</strong> &mdash;
-                Set pages, depth, delay, and scope.</li>
-            <li><strong>3. Pick export formats</strong> &mdash;
-                TXT, DOCX, PDF, IMAGES (any combo).</li>
-            <li><strong>4. Paste a URL and scrape</strong> &mdash;
-                Enter the URL and click "Start scrape".</li>
-            <li><strong>5. Download results</strong> &mdash;
-                Download buttons and previews appear.</li>
-          </ul>
+    with ethics_col:
+        st.markdown(
+            """
+            <div class="about-card">
+              <h2>Responsible by Design</h2>
+              <p>
+                Web Scraper Studio is built for legitimate, ethical content
+                extraction. It respects robots.txt by default, stays inside the
+                chosen crawl boundary, and does not attempt to bypass
+                authentication, paywalls, captchas, or anti-bot protections.
+              </p>
+              <p>
+                That makes the app useful for responsible public-web capture while
+                still acknowledging the rights, policies, and technical boundaries
+                that website owners put in place.
+              </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-          <h2>Key Features</h2>
-          <ul>
-            <li><strong>Robots.txt compliance</strong> &mdash;
-                Respects robots.txt by default.</li>
-            <li><strong>Breadth-first crawling</strong> &mdash;
-                Discovers pages level by level in scope.</li>
-            <li><strong>Sitemap discovery</strong> &mdash;
-                Checks sitemaps for faster coverage.</li>
-            <li><strong>Boilerplate removal</strong> &mdash;
-                Conservative or Aggressive cleanup.</li>
-            <li><strong>Near-duplicate detection</strong> &mdash;
-                Fingerprinting skips duplicate pages.</li>
-            <li><strong>Browser fallback</strong> &mdash;
-                Headless rendering for JS-heavy sites.</li>
-            <li><strong>Rate limiting</strong> &mdash;
-                Built-in delay between requests.</li>
-            <li><strong>Image extraction</strong> &mdash;
-                Finds content images, skips decorative.</li>
-          </ul>
-
-          <h2>Configuration</h2>
-          <ul>
-            <li><strong>Max pages</strong> &mdash;
-                Upper limit on pages (1&ndash;120).</li>
-            <li><strong>Max depth</strong> &mdash;
-                Link levels to follow (0&ndash;6).</li>
-            <li><strong>Delay</strong> &mdash;
-                Wait between requests (0&ndash;5s).</li>
-            <li><strong>Concurrency</strong> &mdash;
-                Parallel fetch threads (1&ndash;4).</li>
-            <li><strong>Timeout</strong> &mdash;
-                Per-request timeout (5&ndash;60s).</li>
-            <li><strong>Max page size</strong> &mdash;
-                Skip large responses (1&ndash;25 MB).</li>
-            <li><strong>Scope</strong> &mdash;
-                Subdomain or full root domain.</li>
-            <li><strong>Query params</strong> &mdash;
-                Treat query variants as distinct.</li>
-          </ul>
-
-          <h2>Developer Settings</h2>
-          <p>
-            Advanced settings live in
-            <code>config/developer.toml</code>:
-            duplicate threshold, max images per page,
-            min text length, debug logging, and
-            robots.txt override. Not exposed in the UI.
-          </p>
-
-          <h2>Ethical Use</h2>
-          <p>
-            Designed for legitimate content extraction.
-            Respect website terms of service. Do not
-            bypass authentication, paywalls, CAPTCHAs,
-            or anti-bot controls.
-          </p>
+    st.markdown(
+        f"""
+        <div class="author-layout">
+          <div class="about-card author-copy-card">
+            <h2>About the Author</h2>
+            <h3 class="author-name">Okon Prince</h3>
+            <p class="author-role">AI Engineer &amp; Data Scientist | Senior Data Scientist at MIVA Open University</p>
+            <p>
+              I design and deploy end-to-end data systems that turn raw data
+              into production-ready intelligence.
+            </p>
+            <p>
+              My core stack includes Python, Streamlit, BigQuery, Supabase,
+              Hugging Face, PySpark, SQL, Machine Learning, LLMs, and
+              Transformers.
+            </p>
+            <p>
+              My work spans risk scoring systems, A/B testing, Traditional and
+              AI-powered dashboards, RAG pipelines, predictive analytics,
+              LLM-based solutions and AI research.
+            </p>
+            <p>
+              Currently, I work as a Senior Data Scientist in the department of
+              Research and Development at MIVA Open University, where I carry
+              out AI / ML Research and build intelligent systems that drive
+              analytics, decision support and scalable AI innovation.
+            </p>
+            <p>
+              I believe: models are trained, systems are engineered and impact
+              is delivered.
+            </p>
+          </div>
+          <div class="about-card author-photo-card">
+            <img src="{author_image}" alt="Portrait of Okon Prince" class="author-photo"/>
+          </div>
         </div>
         """,
         unsafe_allow_html=True,
